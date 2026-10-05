@@ -13,28 +13,20 @@
   button, input { font-family:inherit; }
   button { cursor:pointer; }
   .split { height:100dvh; display:flex; flex-direction:column; }
-  .half { flex:1; min-height:0; display:flex; flex-direction:column; }
-  .doc { background:#F3FAF9; }
-  .pat { background:#FFF7F7; border-top:3px solid #E7E0D4; }
+  .half { min-height:0; display:flex; flex-direction:column; }
+  .doc { flex:0 0 42%; background:#F3FAF9; }
+  .pat { flex:1; background:#FFF7F7; border-top:3px solid #E7E0D4; }
   .bar { display:flex; align-items:center; justify-content:space-between; padding:calc(8px + var(--safe-t)) 12px 6px; }
   .pat .bar { padding-top:8px; }
-  .bar b { font-size:20px; }
-  .mic { border:0; border-radius:12px; background:#6D28D9; color:#fff; font-size:18px; font-weight:800; padding:8px 12px; }
+  .bar b { font-size:22px; }
+  .mic { border:0; border-radius:14px; background:#6D28D9; color:#fff; font-size:22px; font-weight:800; min-height:52px; padding:0 18px; }
   .mic.on { background:#BE123C; }
-  .said { margin:0 12px 8px; border-radius:18px; min-height:92px; padding:14px; display:flex; align-items:center; color:#fff; font-size:32px; font-weight:800; line-height:1.25; }
-  .doc .said { background:#123E3C; }
-  .pat .said { background:#7F1D1D; }
-  .chips { display:flex; gap:8px; overflow-x:auto; padding:0 12px 8px; scrollbar-width:none; }
-  .chips::-webkit-scrollbar { display:none; }
-  .chip, .phrase { border:1px solid var(--line); background:#fff; font-weight:800; }
-  .chip { flex:0 0 auto; border-radius:999px; padding:8px 14px; font-size:18px; }
-  .chip.on { background:#0E6E6B; color:#fff; border-color:#0E6E6B; }
-  .list { flex:1; min-height:0; overflow:auto; display:flex; flex-direction:column; gap:8px; padding:0 12px 10px; }
-  .phrase { text-align:left; border-radius:14px; padding:14px; font-size:22px; }
-  .pat .list { display:grid; grid-template-columns:1fr 1fr; align-content:start; }
-  .composer { display:flex; gap:8px; padding:0 12px 8px; }
-  .composer input { flex:1; border:1px solid var(--line); border-radius:12px; padding:10px; font-size:18px; }
-  .composer button { border:0; background:#0E6E6B; color:#fff; border-radius:12px; padding:10px 14px; font-weight:800; font-size:18px; }
+  .said { margin:0 12px 8px; border-radius:18px; min-height:108px; padding:16px; display:flex; align-items:center; color:#fff; font-size:34px; font-weight:800; line-height:1.25; }
+  .doc .said { background:#123E3C; flex:1; }
+  .pat .said { background:#7F1D1D; min-height:88px; }
+  .hint { margin:0 14px 8px; color:#57534E; font-size:16px; }
+  .list { flex:1; min-height:0; overflow:auto; display:grid; grid-template-columns:1fr 1fr; gap:8px; align-content:start; padding:0 12px calc(10px + var(--safe-b)); }
+  .phrase { text-align:left; border:1px solid var(--line); background:#fff; border-radius:14px; padding:16px 12px; font-size:22px; font-weight:800; }
   .sheet { position:fixed; inset:0; background:rgba(28,25,23,.4); display:none; align-items:flex-end; z-index:30; }
   .sheet.show { display:flex; }
   .box { width:min(560px,100%); margin:0 auto; background:#F7F4EE; border-radius:20px 20px 0 0; padding:16px 14px calc(16px + var(--safe-b)); max-height:70vh; overflow:auto; }
@@ -47,14 +39,12 @@
 <body>
 <div class="split">
   <section class="half doc">
-    <div class="bar"><b>醫師</b><button class="mic" id="micDoc">醫師說</button></div>
-    <div class="said" id="docNow">請看這裡</div>
-    <div class="chips" id="cats"></div>
-    <div class="list" id="phrases"></div>
-    <div class="composer"><input id="custom" placeholder="自己打一句"><button id="send">送出</button></div>
+    <div class="bar"><b>醫師</b><button class="mic" id="micDoc">按住說</button></div>
+    <div class="said" id="docNow">請按右上角，說一句</div>
+    <p class="hint" id="docHint">說完會變成上面的字。再按一次可停止。</p>
   </section>
   <section class="half pat">
-    <div class="bar"><b>患者</b><button class="mic" id="micPat">患者說</button></div>
+    <div class="bar"><b>患者</b></div>
     <div class="said" id="patNow">請點下面回答</div>
     <div class="list" id="patMain"></div>
   </section>
@@ -67,15 +57,6 @@
   </div>
 </div>
 <script>
-const CATS = [["hi","招呼"],["ask","問診"],["exam","檢查"],["dx","說明"],["tx","用藥"],["warn","注意"]];
-const DOC = {
-  hi: [["您好，我是泌尿科醫師"],["請看螢幕"],["看懂請點懂了"],["請家屬一起看"],["需要手語翻譯嗎？", ["需要","現在不用","請家屬翻譯"]]],
-  ask: [["今天哪裡不舒服？", ["左邊腰","右邊腰","下腹","會陰","說不上來"]],["尿尿有問題嗎？", ["有","沒有","不確定"]],["這個問題多久了？", ["今天","昨天","好幾天","好幾個星期","好幾個月"]],["尿尿有血嗎？", ["有","沒有","以前有"]],["尿尿時會痛嗎？", ["不痛","有一點痛","很痛"]],["很常想尿嗎？", ["會","不會","有時會"]],["晚上要起來尿尿嗎？", ["不用","1 次","2 次","3 次","4 次以上"]],["尿不出來嗎？", ["尿不出來","尿很細","尿完還想尿","不會"]],["會漏尿嗎？", ["不會","咳嗽就漏","很急就漏","一直漏"]],["有發燒嗎？", ["有","沒有","不知道"]],["對什麼藥過敏嗎？", ["沒有","有，但不知道藥名","不確定"]]],
-  exam: [["請躺到檢查床"],["請把褲子退到這裡"],["我要摸肚子，請放鬆"],["請側躺"],["我要做肛門指診，看攝護腺"],["請先去解尿，留中段尿"],["請去做檢查", ["抽血","超音波","X光","電腦斷層","膀胱鏡"], "doc"]],
-  dx: [["可能是泌尿道感染"],["可能是結石"],["可能是攝護腺肥大"],["可能是膀胱的問題"],["還要檢查才能確定"],["目前看起來不嚴重"],["建議住院"],["以後可能需要手術", ["今天先說明","我想再問","先不要決定"]]],
-  tx: [["我開藥給您"],["請多喝水"],["不要憋尿"],["這個藥可能讓尿變色"],["請依預約回診"],["請簽名，表示了解", ["我同意","我不同意","先不要決定","請再說明"]],["有問題可回門診或急診"]],
-  warn: [["發燒、劇痛、尿不出來，請急診"],["大量血尿，請急診"],["頭暈冒冷汗，請告訴我們"],["藥吃了不舒服就停，並回診"]]
-};
 const PAT = [
   ["懂了"],["不懂，請再說"],["是"],["不是"],["不確定"],
   ["哪裡不舒服", ["左邊腰","右邊腰","下腹","膀胱","會陰","尿道"]],
@@ -85,74 +66,75 @@ const PAT = [
   ["夜尿幾次", ["0 次","1 次","2 次","3 次","4 次以上"]],
   ["其他", ["請慢一點","請寫大一點","我有問題","我想上廁所","請叫家屬","要手語翻譯","我同意","我不同意","先不要決定"]]
 ];
-let cat = "hi", pending = null;
+let pending = null;
 const $ = (id) => document.getElementById(id);
-function show(who, text) {
-  $(who === "患者" ? "patNow" : "docNow").textContent = text;
-}
+function showPat(text) { $("patNow").textContent = text; }
 function openChoices(title, items, onPick) {
   pending = onPick;
   $("sheetTitle").textContent = title;
   $("choices").innerHTML = items.map((t,i) => `<button data-i="${i}">${t}</button>`).join("");
   $("sheet").classList.add("show");
 }
-function renderCats() { $("cats").innerHTML = CATS.map(([id,name]) => `<button class="chip ${id===cat?"on":""}" data-cat="${id}">${name}</button>`).join(""); }
-function renderDoc() { $("phrases").innerHTML = DOC[cat].map((item,i) => `<button class="phrase" data-i="${i}">${item[0]}</button>`).join(""); }
-function renderPat() { $("patMain").innerHTML = PAT.map((item,i) => `<button class="phrase" data-i="${i}">${item[0]}</button>`).join(""); }
-$("cats").onclick = (e) => { const b = e.target.closest("[data-cat]"); if (!b) return; cat = b.dataset.cat; renderCats(); renderDoc(); };
-$("phrases").onclick = (e) => {
-  const b = e.target.closest("[data-i]"); if (!b) return;
-  const item = DOC[cat][b.dataset.i];
-  show("醫師", item[0]);
-  if (item[1]) openChoices(item[0], item[1], (choice) => show(item[2] === "doc" ? "醫師" : "患者", item[2] === "doc" ? item[0] + "：" + choice : choice));
-};
+$("patMain").innerHTML = PAT.map((item,i) => `<button class="phrase" data-i="${i}">${item[0]}</button>`).join("");
 $("patMain").onclick = (e) => {
   const b = e.target.closest("[data-i]"); if (!b) return;
   const item = PAT[b.dataset.i];
-  show("患者", item[0]);
-  if (item[1]) openChoices(item[0], item[1], (choice) => show("患者", item[0] + "：" + choice));
+  showPat(item[0]);
+  if (item[1]) openChoices(item[0], item[1], (choice) => showPat(item[0] + "：" + choice));
 };
 $("choices").onclick = (e) => {
   const b = e.target.closest("[data-i]"); if (!b || !pending) return;
-  const choice = b.textContent;
-  const fn = pending; pending = null; $("sheet").classList.remove("show"); fn(choice);
+  const fn = pending; pending = null; $("sheet").classList.remove("show"); fn(b.textContent);
 };
 $("sheetClose").onclick = () => { pending = null; $("sheet").classList.remove("show"); };
-$("send").onclick = () => { const t = $("custom").value.trim(); if (!t) return; show("醫師", t); $("custom").value = ""; };
-$("custom").addEventListener("keydown", (e) => { if (e.key === "Enter") $("send").click(); });
 const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
 let rec = null, listenSession = 0, listening = false;
 function stopVoice() {
   listenSession++; listening = false;
-  document.querySelectorAll(".mic").forEach(el => el.classList.remove("on"));
+  $("micDoc").classList.remove("on");
+  $("micDoc").textContent = "按住說";
   if (!rec) return;
   const old = rec; rec = null;
   old.onresult = old.onerror = old.onend = null;
   try { old.abort(); } catch (e) {}
 }
-function startVoice(who, btn) {
-  if (!SR) { show(who, "這支手機不能語音，請改點選項"); return; }
-  if (listening) { stopVoice(); return; }
+function startVoice() {
+  if (!SR) { $("docHint").textContent = "這支手機不能語音，請改用 Safari"; return; }
+  if (listening) { stopVoice(); $("docHint").textContent = "已停止"; return; }
   if (window.speechSynthesis) speechSynthesis.cancel();
   stopVoice();
   const session = listenSession;
   const mine = new SR();
-  rec = mine; mine.lang = "zh-TW"; mine.interimResults = false; mine.continuous = false;
-  btn.classList.add("on"); listening = true;
-  show(who, "請說話");
-  const timer = setTimeout(() => { if (session === listenSession) stopVoice(); }, 7000);
+  rec = mine; mine.lang = "zh-TW"; mine.interimResults = true; mine.continuous = false;
+  listening = true;
+  $("micDoc").classList.add("on");
+  $("micDoc").textContent = "停止";
+  $("docNow").textContent = "請說話";
+  $("docHint").textContent = "正在聽…";
+  const timer = setTimeout(() => { if (session === listenSession) stopVoice(); }, 8000);
   mine.onresult = (e) => {
     if (session !== listenSession) return;
-    const text = (e.results && e.results[0] && e.results[0][0] && e.results[0][0].transcript || "").trim();
-    if (text) show(who, text);
+    let text = "";
+    for (let i = 0; i < e.results.length; i++) text += e.results[i][0].transcript;
+    text = text.trim();
+    if (text) $("docNow").textContent = text;
   };
-  mine.onerror = (e) => { if (session !== listenSession) return; clearTimeout(timer); stopVoice(); show(who, e.error === "not-allowed" ? "請允許麥克風" : "沒聽清楚，請再按一次"); };
-  mine.onend = () => { if (session !== listenSession) return; clearTimeout(timer); listening = false; btn.classList.remove("on"); rec = null; };
-  try { mine.start(); } catch (e) { clearTimeout(timer); stopVoice(); show(who, "麥克風無法啟動，請再按一次"); }
+  mine.onerror = (e) => {
+    if (session !== listenSession) return;
+    clearTimeout(timer); stopVoice();
+    $("docHint").textContent = e.error === "not-allowed" ? "請允許麥克風" : "沒聽清楚，請再按一次";
+  };
+  mine.onend = () => {
+    if (session !== listenSession) return;
+    clearTimeout(timer); listening = false;
+    $("micDoc").classList.remove("on");
+    $("micDoc").textContent = "按住說";
+    rec = null;
+    $("docHint").textContent = "說完了。要改再說一次。";
+  };
+  try { mine.start(); } catch (e) { clearTimeout(timer); stopVoice(); $("docHint").textContent = "麥克風無法啟動，請再按一次"; }
 }
-$("micDoc").onclick = () => startVoice("醫師", $("micDoc"));
-$("micPat").onclick = () => startVoice("患者", $("micPat"));
-renderCats(); renderDoc(); renderPat();
+$("micDoc").onclick = startVoice;
 </script>
 </body>
 </html>
