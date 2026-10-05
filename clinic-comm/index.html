@@ -213,18 +213,55 @@ $("sheetClose").onclick = () => { pending = null; $("sheet").classList.remove("s
 $("send").onclick = () => { const t = $("custom").value.trim(); if (!t) return; showNow("醫師", t); $("custom").value = ""; };
 $("custom").addEventListener("keydown", (e) => { if (e.key === "Enter") $("send").click(); });
 const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-let rec = null;
+let rec = null, listenSession = 0, listening = false;
+function stopVoice() {
+  listenSession++;
+  listening = false;
+  document.querySelectorAll(".mic").forEach(el => el.classList.remove("on"));
+  if (!rec) return;
+  const old = rec;
+  rec = null;
+  old.onresult = null;
+  old.onerror = null;
+  old.onend = null;
+  try { old.abort(); } catch (e) {}
+}
 function startVoice(who, btn) {
-  if (!SR) { $("who").textContent = "請用 Safari，並允許麥克風"; return; }
-  if (rec) { try { rec.stop(); } catch (e) {} }
+  if (!SR) { $("who").textContent = "這支手機不能語音，請改點選項"; return; }
+  if (listening) { stopVoice(); $("who").textContent = "已停止"; return; }
+  if (window.speechSynthesis) speechSynthesis.cancel();
+  stopVoice();
+  const session = listenSession;
+  const mine = new SR();
+  rec = mine;
+  mine.lang = "zh-TW";
+  mine.interimResults = false;
+  mine.continuous = false;
   btn.classList.add("on");
-  rec = new SR(); rec.lang = "zh-TW"; rec.interimResults = true;
-  $("who").textContent = "正在聽…"; $("now").textContent = "請說話";
-  let finalText = "";
-  rec.onresult = (e) => { let text = ""; for (const r of e.results) text += r[0].transcript; $("now").textContent = text; if (e.results[e.results.length-1].isFinal) finalText = text.trim(); };
-  rec.onerror = () => { $("who").textContent = "沒聽清楚"; btn.classList.remove("on"); };
-  rec.onend = () => { btn.classList.remove("on"); if (finalText) showNow(who, finalText); };
-  rec.start();
+  listening = true;
+  $("who").textContent = "正在聽，再說一次按鈕可停止";
+  $("now").textContent = "請說話";
+  const timer = setTimeout(() => { if (session === listenSession) stopVoice(); }, 7000);
+  mine.onresult = (e) => {
+    if (session !== listenSession) return;
+    const text = (e.results && e.results[0] && e.results[0][0] && e.results[0][0].transcript || "").trim();
+    if (text) showNow(who, text);
+  };
+  mine.onerror = (e) => {
+    if (session !== listenSession) return;
+    clearTimeout(timer);
+    stopVoice();
+    $("who").textContent = e.error === "not-allowed" ? "請允許麥克風" : "沒聽清楚，請再按一次";
+  };
+  mine.onend = () => {
+    if (session !== listenSession) return;
+    clearTimeout(timer);
+    listening = false;
+    btn.classList.remove("on");
+    rec = null;
+  };
+  try { mine.start(); }
+  catch (e) { clearTimeout(timer); stopVoice(); $("who").textContent = "麥克風無法啟動，請再按一次"; }
 }
 $("micDoc").onclick = () => startVoice("醫師", $("micDoc"));
 $("micPat").onclick = () => startVoice("患者", $("micPat"));
