@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0E6E6B">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<title>泌尿科門診溝通板 版本5</title>
+<style>
+  :root { --line:#E6DFD2; --safe-b:env(safe-area-inset-bottom,0px); --safe-t:env(safe-area-inset-top,0px); }
+  * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html, body { margin:0; height:100%; background:#F7F4EE; color:#1C1917; font-family:"PingFang TC","Noto Sans TC",sans-serif; }
+  button { font-family:inherit; cursor:pointer; }
+  .split { height:100dvh; display:flex; flex-direction:column; }
+  .doc { flex:0 0 auto; background:#F3FAF9; display:flex; flex-direction:column; padding:calc(8px + var(--safe-t)) 12px 10px; }
+  .pat { flex:1; min-height:0; background:#FFF7F7; border-top:3px solid #E7E0D4; display:flex; flex-direction:column; overflow:auto; }
+  .top { display:flex; align-items:center; justify-content:space-between; gap:8px; }
+  b { font-size:22px; }
+  .mic { border:0; border-radius:16px; background:#6D28D9; color:#fff; font-size:22px; font-weight:800; min-height:56px; padding:0 18px; }
+  .mic.on { background:#BE123C; }
+  .said { border-radius:18px; padding:16px; display:flex; align-items:center; color:#fff; font-size:34px; font-weight:800; line-height:1.25; }
+  .doc .said { background:#123E3C; min-height:96px; margin-top:8px; }
+  .pat .said { background:#7F1D1D; min-height:72px; margin:8px 12px; font-size:28px; }
+  .group { margin:0 12px 6px; font-size:16px; font-weight:800; color:#57534E; }
+  .hint { margin:6px 2px 0; color:#57534E; font-size:16px; }
+  .list { display:grid; grid-template-columns:1fr 1fr; gap:8px; align-content:start; padding:0 12px 10px; }
+  .phrase { display:flex; align-items:center; gap:8px; text-align:left; border:1px solid var(--line); background:#fff; border-radius:16px; padding:10px; font-size:20px; font-weight:800; }
+  .phrase svg { width:54px; height:54px; flex:0 0 54px; }
+  .sheet { position:fixed; inset:0; background:rgba(28,25,23,.4); display:none; align-items:flex-end; z-index:30; }
+  .sheet.show { display:flex; }
+  .box { width:min(560px,100%); margin:0 auto; background:#F7F4EE; border-radius:20px 20px 0 0; padding:16px 14px calc(16px + var(--safe-b)); max-height:72vh; overflow:auto; }
+  .box h3 { margin:0 0 10px; font-size:22px; }
+  .choices { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+  .choices button { display:flex; align-items:center; gap:8px; border:1px solid var(--line); background:#fff; border-radius:14px; padding:10px; font-size:18px; font-weight:800; text-align:left; }
+  .choices svg { width:46px; height:46px; flex:0 0 46px; }
+  .ghost { width:100%; margin-top:8px; border:1px solid var(--line); background:#fff; border-radius:14px; padding:12px; font-size:18px; font-weight:800; }
+</style>
+</head>
+<body>
+<div class="split">
+  <section class="doc">
+    <div class="top"><b>醫師</b><button class="mic" id="micDoc">說話轉文字</button></div>
+    <div class="said" id="docNow">請按右上角說話</div>
+    <p class="hint" id="docHint">只用語音。說完變成大字，再按一次可停止。</p>
+  </section>
+  <section class="pat">
+    <div class="said" id="patNow">版本5：第一頁只有一個頻率</div>
+    <div class="list" id="freqMain"></div>
+    <div class="group">症狀</div>
+    <div class="list" id="patMain"></div>
+    <div class="group">常用對話</div>
+    <div class="list" id="talkMain"></div>
+  </section>
+</div>
+<div class="sheet" id="sheet">
+  <div class="box">
+    <h3 id="sheetTitle">請選細節</h3>
+    <div class="choices" id="choices"></div>
+    <button class="ghost" id="sheetClose">先不選</button>
+  </div>
+</div>
+<script>
+function face(mood) {
+  const mouth = { ok:"M16 34 Q28 44 40 34", bad:"M16 40 Q28 30 40 40", flat:"M16 36 H40", wow:"M22 34 H34 V42 H22 Z" };
+  const brow = mood === "bad" ? "<path d='M16 16 L24 20 M40 16 L32 20' stroke='#1C1917' stroke-width='2'/>" : "";
+  return `<svg viewBox="0 0 56 56"><circle cx="28" cy="28" r="24" fill="#FDE68A" stroke="#1C1917" stroke-width="2"/><circle cx="20" cy="24" r="3" fill="#1C1917"/><circle cx="36" cy="24" r="3" fill="#1C1917"/>${brow}<path d="${mouth[mood] || mouth.ok}" fill="none" stroke="#1C1917" stroke-width="3" stroke-linecap="round"/></svg>`;
+}
+function icon(kind) {
+  const pics = {
+    yes: face("ok"),
+    no: `<svg viewBox="0 0 56 56"><circle cx="28" cy="28" r="24" fill="#FECACA" stroke="#1C1917" stroke-width="2"/><path d="M18 18 L38 38 M38 18 L18 38" stroke="#BE123C" stroke-width="4" stroke-linecap="round"/></svg>`,
+    ask: face("wow"),
+    maybe: face("flat"),
+    body: `<svg viewBox="0 0 56 56"><circle cx="28" cy="11" r="6" fill="#FDE68A" stroke="#1C1917"/><path d="M28 17 V34 M17 25 H39 M22 50 L28 34 L34 50" fill="none" stroke="#0E6E6B" stroke-width="4" stroke-linecap="round"/></svg>`,
+    clock: `<svg viewBox="0 0 56 56"><circle cx="28" cy="28" r="20" fill="#DBEAFE" stroke="#1C1917" stroke-width="2"/><path d="M28 16 V28 L36 34" fill="none" stroke="#1D4ED8" stroke-width="3" stroke-linecap="round"/></svg>`,
+    pain: face("bad"),
+    pee: `<svg viewBox="0 0 56 56"><path d="M18 12 H38 V28 Q38 44 28 44 Q18 28 18 12 Z" fill="#BFDBFE" stroke="#1C1917" stroke-width="2"/><path d="M24 44 Q28 52 32 44" fill="none" stroke="#1D4ED8" stroke-width="3"/></svg>`,
+    moon: `<svg viewBox="0 0 56 56"><path d="M34 10 A18 18 0 1 0 46 36 A14 14 0 1 1 34 10 Z" fill="#FDE68A" stroke="#1C1917" stroke-width="2"/></svg>`,
+    more: `<svg viewBox="0 0 56 56"><circle cx="16" cy="28" r="4" fill="#0E6E6B"/><circle cx="28" cy="28" r="4" fill="#0E6E6B"/><circle cx="40" cy="28" r="4" fill="#0E6E6B"/></svg>`,
+    left: `<svg viewBox="0 0 56 56"><text x="28" y="9" text-anchor="middle" font-size="9" font-weight="700">背面・患者的左</text><circle cx="28" cy="16" r="4" fill="#FDE68A" stroke="#1C1917"/><path d="M19 21 H37 L34 46 H22 Z" fill="#F6E7D8" stroke="#1C1917"/><rect x="19" y="24" width="10" height="16" rx="3" fill="#F59E0B" stroke="#1C1917"/><text x="24" y="35" text-anchor="middle" font-size="11" font-weight="800">左</text><text x="36" y="35" text-anchor="middle" font-size="10">右</text></svg>`,
+    right: `<svg viewBox="0 0 56 56"><text x="28" y="9" text-anchor="middle" font-size="9" font-weight="700">背面・患者的右</text><circle cx="28" cy="16" r="4" fill="#FDE68A" stroke="#1C1917"/><path d="M19 21 H37 L34 46 H22 Z" fill="#F6E7D8" stroke="#1C1917"/><rect x="27" y="24" width="10" height="16" rx="3" fill="#FB7185" stroke="#1C1917"/><text x="20" y="35" text-anchor="middle" font-size="10">左</text><text x="32" y="35" text-anchor="middle" font-size="11" font-weight="800">右</text></svg>`,
+    belly: `<svg viewBox="0 0 56 56"><text x="28" y="10" text-anchor="middle" font-size="9" font-weight="700">正面</text><path d="M16 16 H40 V32 Q40 48 28 48 Q16 32 16 16 Z" fill="#FBCFE8" stroke="#1C1917"/><ellipse cx="28" cy="34" rx="9" ry="6" fill="#E11D48"/><text x="28" y="37" text-anchor="middle" font-size="9" fill="#fff" font-weight="800">下腹</text></svg>`,
+    bladder: `<svg viewBox="0 0 56 56"><path d="M16 18 H40 V30 Q40 46 28 46 Q16 30 16 18 Z" fill="#FBCFE8" stroke="#1C1917"/><ellipse cx="28" cy="28" rx="9" ry="6" fill="#60A5FA" stroke="#1C1917"/><text x="28" y="31" text-anchor="middle" font-size="8" font-weight="800">膀胱</text><path d="M28 34 V46" stroke="#1D4ED8" stroke-width="2"/></svg>`,
+    perineum: `<svg viewBox="0 0 56 56"><path d="M18 14 H38 V28 Q38 40 28 40 Q18 28 18 14 Z" fill="#FBCFE8" stroke="#1C1917"/><ellipse cx="28" cy="34" rx="5" ry="4" fill="#DB2777" stroke="#1C1917"/><text x="28" y="50" text-anchor="middle" font-size="10" font-weight="700">兩腿中間</text></svg>`,
+    urethra: `<svg viewBox="0 0 56 56"><path d="M23 8 H33 V22 H30 V42 H26 V22 H23 Z" fill="#BFDBFE" stroke="#1C1917"/><circle cx="28" cy="44" r="3" fill="#1D4ED8"/><text x="28" y="54" text-anchor="middle" font-size="10" font-weight="700">尿道口</text></svg>`,
+    drop: `<svg viewBox="0 0 56 56"><path d="M28 8 Q42 28 28 48 Q14 28 28 8 Z" fill="#FCA5A5" stroke="#1C1917" stroke-width="2"/></svg>`
+  };
+  return pics[kind] || face("ok");
+}
+const FREQ = [["頻率", "clock", ["今天才開始","昨天開始","好幾天","約一週","好幾個星期","好幾個月","一直都有","時好時壞","一天 1 到 3 次","一天 4 到 6 次","一天 7 到 10 次","一天 10 次以上","幾乎一直想尿","夜尿 0 次","夜尿 1 次","夜尿 2 次","夜尿 3 次","夜尿 4 次","夜尿 5 次以上"]]];
+const PAT = [
+  ["痛", "pain", ["左邊腰","右邊腰","下腹","會陰","尿道口","有一點痛","很痛","痛到睡不著"]],
+  ["血尿", "pee", ["一點點血","整泡都紅","有血塊","現在沒有"]],
+  ["尿痛", "pee", ["解尿時痛","解完還痛","尿道口痛","有一點痛","很痛","不會痛"]],
+  ["頻尿急尿", "clock", ["很常想尿","很急，忍不住","尿完還想尿","不會"]],
+  ["尿不出來", "body", ["完全尿不出","尿很細","要用力才尿得出","可以尿"]],
+  ["漏尿", "drop", ["咳嗽、出力就漏","很急就漏","一直漏","只有幾滴","不會漏"]],
+  ["發燒", "pain", ["有發燒","發冷","噁心","沒有發燒"]]
+];
+const TALK = [["懂了","yes"],["不懂，請再說","ask"],["是","yes"],["不是","no"],["不確定","maybe"],["請慢一點","clock"],["請再說明","ask"],["我有問題","ask"],["請叫家屬","more"],["要手語翻譯","more"],["我想上廁所","pee"],["我同意","yes"],["先不要決定","maybe"]];
+const CHOICE_ICON = { "左邊腰":"left","右邊腰":"right","下腹":"belly","會陰":"perineum","尿道口":"urethra","有一點痛":"maybe","很痛":"pain","痛到睡不著":"pain","不會痛":"yes","不會":"yes","可以尿":"yes","不會漏":"yes","沒有發燒":"yes","現在沒有":"yes","不用起來":"yes" };
+let pending = null;
+const $ = (id) => document.getElementById(id);
+function card(text, kind) { return icon(CHOICE_ICON[text] || kind) + `<span>${text}</span>`; }
+function openChoices(title, items) {
+  pending = title;
+  $("sheetTitle").textContent = title;
+  $("choices").innerHTML = items.map(t => `<button data-choice="${t}">${card(t, "maybe")}</button>`).join("");
+  $("sheet").classList.add("show");
+}
+function fill(id, items) {
+  $(id).innerHTML = items.map((item,i) => `<button class="phrase" data-i="${i}">${card(item[0], item[1])}</button>`).join("");
+  $(id).onclick = (e) => {
+    const b = e.target.closest("[data-i]"); if (!b) return;
+    const item = items[b.dataset.i];
+    $("patNow").textContent = item[0];
+    if (item[2]) openChoices(item[0], item[2]);
+  };
+}
+fill("freqMain", FREQ);
+fill("patMain", PAT);
+fill("talkMain", TALK);
+$("choices").onclick = (e) => {
+  const b = e.target.closest("[data-choice]"); if (!b || !pending) return;
+  $("patNow").textContent = pending + "：" + b.dataset.choice;
+  pending = null; $("sheet").classList.remove("show");
+};
+$("sheetClose").onclick = () => { pending = null; $("sheet").classList.remove("show"); };
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+let rec = null, listenSession = 0, listening = false;
+function stopVoice() {
+  listenSession++; listening = false;
+  $("micDoc").classList.remove("on"); $("micDoc").textContent = "說話轉文字";
+  if (!rec) return;
+  const old = rec; rec = null;
+  old.onresult = old.onerror = old.onend = null;
+  try { old.abort(); } catch (e) {}
+}
+function startVoice() {
+  if (!SR) { $("docHint").textContent = "請用 Safari，並允許麥克風"; return; }
+  if (listening) { stopVoice(); $("docHint").textContent = "已停止"; return; }
+  if (window.speechSynthesis) speechSynthesis.cancel();
+  stopVoice();
+  const session = listenSession, mine = new SR();
+  rec = mine; mine.lang = "zh-TW"; mine.interimResults = true; mine.continuous = false;
+  listening = true; $("micDoc").classList.add("on"); $("micDoc").textContent = "停止";
+  $("docNow").textContent = "請說話"; $("docHint").textContent = "正在聽…";
+  const timer = setTimeout(() => { if (session === listenSession) stopVoice(); }, 8000);
+  mine.onresult = (e) => {
+    if (session !== listenSession) return;
+    let text = "";
+    for (let i = 0; i < e.results.length; i++) text += e.results[i][0].transcript;
+    if (text.trim()) $("docNow").textContent = text.trim();
+  };
+  mine.onerror = (e) => { if (session !== listenSession) return; clearTimeout(timer); stopVoice(); $("docHint").textContent = e.error === "not-allowed" ? "請允許麥克風" : "沒聽清楚，請再按一次"; };
+  mine.onend = () => { if (session !== listenSession) return; clearTimeout(timer); listening = false; $("micDoc").classList.remove("on"); $("micDoc").textContent = "說話轉文字"; rec = null; $("docHint").textContent = "說完了。要改再說一次。"; };
+  try { mine.start(); } catch (e) { clearTimeout(timer); stopVoice(); $("docHint").textContent = "麥克風無法啟動，請再按一次"; }
+}
+$("micDoc").onclick = startVoice;
+</script>
+</body>
+</html>
