@@ -18,7 +18,7 @@
   body { font-family: "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", sans-serif; }
   button, input { font-family: inherit; }
   button { cursor: pointer; }
-  .app { max-width: 560px; margin: 0 auto; padding-bottom: calc(168px + var(--safe-b)); }
+  .app { max-width: 560px; margin: 0 auto; padding-bottom: calc(248px + var(--safe-b)); }
   header {
     position: sticky; top: 0; z-index: 5;
     padding: calc(8px + var(--safe-t)) 14px 8px;
@@ -74,7 +74,11 @@
   .ans { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
   .ans button { border: 0; border-radius: 14px; min-height: 52px; color: white; font-size: 15px; font-weight: 800; }
   .yes { background: var(--green); } .no { background: var(--rose); } .mid { background: var(--amber); } .info { background: var(--blue); }
-  .more { display: flex; gap: 6px; margin-top: 6px; overflow-x: auto; }
+  .more { display: flex; gap: 6px; margin-top: 6px; overflow-x: auto; scrollbar-width: none; }
+  .more button { flex: 0 0 auto; border: 1px solid var(--line); background: white; border-radius: 999px; padding: 8px 10px; font-weight: 700; }
+  .mic { border: 0; border-radius: 14px; min-height: 44px; font-weight: 800; color: white; background: #7C3AED; }
+  .mic.on { background: var(--rose); }
+  .mic-row { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 6px; }
   .more button { flex: 0 0 auto; border: 1px solid var(--line); background: white; border-radius: 999px; padding: 8px 10px; font-weight: 700; }
   .panel { margin: 8px 14px; background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 10px; }
   .pain { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; }
@@ -124,14 +128,19 @@
 </div>
 <div class="dock">
   <div class="dock-in">
-    <p>患者直接點</p>
+    <p>患者直接點 · 可左右滑更多</p>
     <div class="ans">
       <button class="yes" data-say="懂了">懂了</button>
       <button class="no" data-say="不懂，請再說">不懂</button>
       <button class="yes" data-say="是">是</button>
       <button class="no" data-say="不是">不是</button>
     </div>
+    <div class="chips" id="patCats" style="padding:8px 0 0"></div>
     <div class="more" id="patMore"></div>
+    <div class="mic-row">
+      <button class="mic" id="micDoc" type="button">🎤 醫師說</button>
+      <button class="mic" id="micPat" type="button">🎤 患者／家屬說</button>
+    </div>
   </div>
 </div>
 <div class="sheet" id="sheet">
@@ -155,11 +164,18 @@ const PHRASES = {
   tx: [["💊","我開藥給您","依藥袋時間吃"],["💧","請多喝水","除非我另外限制"],["🚫","不要憋尿","有尿意就去"],["🎨","這個藥可能讓尿變色","橘色或藍色都不要緊張"],["📅","請依預約回診","帶藥袋與報告"],["✍️","請簽名，表示了解","不同意可以再問"],["📞","有問題可回門診或急診","不要硬撐"]],
   warn: [["🚨","發燒、劇痛、完全尿不出來，請急診","不要等門診"],["🩸","大量血尿或血塊，請急診","尤其尿不出"],["😵","頭暈、冒冷汗，請告訴我們","可能是疼痛或感染"],["⚠️","藥吃完不舒服就停，並回診","紅疹、呼吸困難更要緊"]]
 };
-const PAT = ["有點痛","很痛","不痛","我想上廁所","請叫家屬","要手語翻譯","我同意","先不要決定"];
-const PARTS = ["左邊腰","右邊腰","下腹","膀胱","會陰"];
+const PAT_GROUPS = {
+  症狀: ["尿尿有血","尿尿會痛","尿完還痛","很常想尿","很急，忍不住","尿不出來","尿很細","尿完還想尿","會漏尿","咳嗽就漏尿","晚上要起來尿","有發燒","發冷","左邊腰很痛","右邊腰很痛","下腹脹痛","會陰不適","噁心想吐","有結石過","沒有結石過"],
+  時間: ["今天才開始","昨天開始","好幾天了","大約一週","好幾個星期","好幾個月","一直都有","時好時壞","越來越嚴重","吃了藥有好一點","吃了藥沒有好"],
+  次數: ["夜尿 0 次","夜尿 1 次","夜尿 2 次","夜尿 3 次","夜尿 4 次以上","白天尿很多次","痛是 0 分","有一點痛","痛到影響生活","痛到睡不著"],
+  用藥: ["沒有藥物過敏","我有藥物過敏","我不知道藥名","我有在吃其他藥","我沒有慢性病","我有高血壓","我有糖尿病","我有在吃抗凝血藥"],
+  需求: ["請慢一點","請寫大一點","請用圖","我有問題","我想上廁所","請叫家屬","要手語翻譯","請給紙筆","我同意","我不同意","先不要決定","請再說明","我想看報告","我想換時間","請幫我掛號"]
+};
+let patCat = "症狀";
+const PARTS = ["左邊腰","右邊腰","下腹","膀胱","會陰","尿道"];
+const $ = (id) => document.getElementById(id);
 const log = [];
 let cat = "hi";
-const $ = (id) => document.getElementById(id);
 function time() { return new Date().toLocaleTimeString("zh-TW", { hour: "2-digit", minute: "2-digit" }); }
 function say(role, emo, text, sub) {
   $("who").textContent = (role === "doc" ? "醫師" : "患者") + " · " + time();
@@ -185,13 +201,49 @@ $("phrases").onclick = (e) => { const b = e.target.closest("[data-i]"); if (!b) 
 $("send").onclick = () => { const t = $("custom").value.trim(); if (!t) return; say("doc", "📝", t, "醫師自訂"); $("custom").value = ""; };
 $("custom").addEventListener("keydown", (e) => { if (e.key === "Enter") $("send").click(); });
 document.querySelector(".ans").onclick = (e) => { const b = e.target.closest("[data-say]"); if (b) say("pat", "💬", b.dataset.say, "患者回答"); };
-$("patMore").innerHTML = PAT.map(t => `<button data-say="${t}">${t}</button>`).join("");
+function renderPat() {
+  $("patCats").innerHTML = Object.keys(PAT_GROUPS).map(name => `<button class="chip ${name===patCat?"on":""}" data-pcat="${name}">${name}</button>`).join("");
+  $("patMore").innerHTML = PAT_GROUPS[patCat].map(t => `<button data-say="${t}">${t}</button>`).join("");
+}
+$("patCats").onclick = (e) => { const b = e.target.closest("[data-pcat]"); if (!b) return; patCat = b.dataset.pcat; renderPat(); };
 $("patMore").onclick = (e) => { const b = e.target.closest("[data-say]"); if (b) say("pat", "💬", b.dataset.say, "患者回答"); };
 $("parts").innerHTML = PARTS.map(t => `<button data-part="${t}">${t}</button>`).join("");
 $("parts").onclick = (e) => { const b = e.target.closest("[data-part]"); if (b) say("pat", "📍", "不舒服在" + b.dataset.part, "患者指出位置"); };
 const colors = ["#059669","#10B981","#65A30D","#CA8A04","#D97706","#EA580C","#DC2626","#BE123C","#9F1239","#881337","#7F1D1D"];
 $("pain").innerHTML = colors.map((c, n) => `<button data-pain="${n}" style="background:${c}">${n}</button>`).join("");
 $("pain").onclick = (e) => { const b = e.target.closest("[data-pain]"); if (b) say("pat", "😣", `疼痛 ${b.dataset.pain} 分`, "0 不痛，10 最痛"); };
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+let rec = null;
+function startVoice(role, btn) {
+  if (!SR) { $("sub").textContent = "這支瀏覽器不能語音輸入，請用 iPhone Safari，並允許麥克風"; return; }
+  if (rec) { try { rec.stop(); } catch (e) {} }
+  document.querySelectorAll(".mic").forEach(el => el.classList.remove("on"));
+  btn.classList.add("on");
+  rec = new SR();
+  rec.lang = "zh-TW";
+  rec.interimResults = true;
+  rec.continuous = false;
+  $("hero").className = "hero " + role;
+  $("who").textContent = role === "doc" ? "正在聽醫師說" : "正在聽患者或家屬說";
+  $("emo").textContent = "🎤";
+  $("now").textContent = "請說話…";
+  $("sub").textContent = "說完會變成上面的大字";
+  let finalText = "";
+  rec.onresult = (e) => {
+    let text = "";
+    for (let i = 0; i < e.results.length; i++) text += e.results[i][0].transcript;
+    $("now").textContent = text || "請說話…";
+    if (e.results[e.results.length - 1].isFinal) finalText = text.trim();
+  };
+  rec.onerror = () => { $("sub").textContent = "沒聽清楚，或尚未允許麥克風"; btn.classList.remove("on"); };
+  rec.onend = () => {
+    btn.classList.remove("on");
+    if (finalText) say(role, "🎤", finalText, role === "doc" ? "語音轉文字" : "患者或家屬說的");
+  };
+  rec.start();
+}
+$("micDoc").onclick = () => startVoice("doc", $("micDoc"));
+$("micPat").onclick = () => startVoice("pat", $("micPat"));
 $("speak").onclick = () => { if (!speechSynthesis) return; speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance($("now").textContent); u.lang = "zh-TW"; u.rate = .88; speechSynthesis.speak(u); };
 $("copy").onclick = async () => { try { await navigator.clipboard.writeText(log.join("\n") || "無紀錄"); } catch (e) {} };
 $("setBtn").onclick = () => $("sheet").classList.add("show");
@@ -199,7 +251,7 @@ $("closeSet").onclick = () => $("sheet").classList.remove("show");
 $("bigger").onclick = () => document.body.classList.toggle("lg");
 $("contrast").onclick = () => document.body.classList.toggle("hc");
 $("clear").onclick = () => { log.length = 0; $("thread").innerHTML = ""; $("now").textContent = "紀錄已清除"; };
-renderCats(); renderPhrases();
+renderCats(); renderPhrases(); renderPat();
 </script>
 </body>
 </html>
