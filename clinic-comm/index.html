@@ -47,6 +47,7 @@
   </section>
   <section class="pat">
     <div class="said" id="patNow">患者可點選項，或按手寫</div>
+    <div class="list" id="writeMain"></div>
     <div class="list" id="freqMain"></div>
     <div class="group">症狀</div>
     <div class="list" id="patMain"></div>
@@ -110,7 +111,7 @@ const PAT = [
   ["漏尿", "drop", ["咳嗽、出力就漏","很急就漏","一直漏","只有幾滴","不會漏"]],
   ["發燒", "pain", ["有發燒","發冷","噁心","沒有發燒"]]
 ];
-const TALK = [["手寫","more"],["懂了","yes"],["不懂，請再說","ask"],["是","yes"],["不是","no"],["不確定","maybe"],["請慢一點","clock"],["請再說明","ask"],["我有問題","ask"],["請叫家屬","more"],["要手語翻譯","more"],["我想上廁所","pee"],["我同意","yes"],["先不要決定","maybe"]];
+const TALK = [["懂了","yes"],["不懂，請再說","ask"],["是","yes"],["不是","no"],["不確定","maybe"],["請慢一點","clock"],["請再說明","ask"],["我有問題","ask"],["請叫家屬","more"],["要手語翻譯","more"],["我想上廁所","pee"],["我同意","yes"],["先不要決定","maybe"]];
 const CHOICE_ICON = { "左邊腰":"left","右邊腰":"right","下腹":"belly","會陰":"perineum","尿道口":"urethra","有一點痛":"maybe","很痛":"pain","痛到睡不著":"pain","不會痛":"yes","不會":"yes","可以尿":"yes","不會漏":"yes","沒有發燒":"yes","現在沒有":"yes","不用起來":"yes" };
 let pending = null;
 const $ = (id) => document.getElementById(id);
@@ -131,6 +132,7 @@ function fill(id, items) {
     if (item[2]) openChoices(item[0], item[2]);
   };
 }
+fill("writeMain", [["手寫","more"]]);
 fill("freqMain", FREQ);
 fill("patMain", PAT);
 fill("talkMain", TALK);
