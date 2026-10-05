@@ -106,6 +106,12 @@ const CHOICE_ICON = { "左邊腰":"left","右邊腰":"right","下腹":"belly","�
 let pending = null;
 const $ = (id) => document.getElementById(id);
 function card(text, kind) { return icon(CHOICE_ICON[text] || kind) + `<span>${text}</span>`; }
+function openChoices(title, items) {
+  pending = title;
+  $("sheetTitle").textContent = title;
+  $("choices").innerHTML = items.map(t => `<button data-choice="${t}">${card(t, "maybe")}</button>`).join("");
+  $("sheet").classList.add("show");
+}
 function fill(id, items) {
   $(id).innerHTML = items.map((item,i) => `<button class="phrase" data-i="${i}">${card(item[0], item[1])}</button>`).join("");
   $(id).onclick = (e) => {
