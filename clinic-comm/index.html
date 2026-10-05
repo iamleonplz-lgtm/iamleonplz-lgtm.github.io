@@ -4,545 +4,202 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#0E6E6B">
 <title>泌尿科門診溝通板</title>
 <style>
   :root {
-    --bg: #F3EFE6;
-    --ink: #1C1917;
-    --muted: #57534E;
-    --line: #E7E0D4;
-    --card: #FFFcf7;
-    --teal: #0E6E6B;
-    --teal-d: #0A5553;
-    --teal-s: #E5F3F2;
-    --amber: #B45309;
-    --amber-s: #FEF3C7;
-    --rose: #BE123C;
-    --rose-s: #FFE4E6;
-    --green: #047857;
-    --green-s: #D1FAE5;
-    --blue: #1D4ED8;
-    --blue-s: #DBEAFE;
-    --shadow: 0 8px 24px rgba(28,25,23,.06);
-    --radius: 18px;
-    --safe-b: env(safe-area-inset-bottom, 0px);
-    --safe-t: env(safe-area-inset-top, 0px);
+    --bg: #F3EFE6; --ink: #1C1917; --muted: #57534E; --line: #E7E0D4;
+    --card: #FFFCF7; --teal: #0E6E6B; --teal-d: #0A5553; --teal-s: #E5F3F2;
+    --rose: #BE123C; --amber: #B45309; --green: #047857; --blue: #1D4ED8;
+    --safe-b: env(safe-area-inset-bottom, 0px); --safe-t: env(safe-area-inset-top, 0px);
   }
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-  html, body { margin: 0; padding: 0; }
-  body {
-    font-family: "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
-    background: var(--bg);
-    color: var(--ink);
-    min-height: 100dvh;
-  }
-  button, input, textarea { font-family: inherit; }
+  html, body { margin: 0; background: var(--bg); color: var(--ink); }
+  body { font-family: "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", sans-serif; }
+  button, input { font-family: inherit; }
   button { cursor: pointer; }
-  .app { max-width: 520px; margin: 0 auto; min-height: 100dvh; padding-bottom: calc(84px + var(--safe-b)); }
-  header.top {
-    position: sticky; top: 0; z-index: 20;
-    background: rgba(243,239,230,.92);
-    backdrop-filter: blur(10px);
-    padding: calc(10px + var(--safe-t)) 16px 10px;
-    border-bottom: 1px solid transparent;
+  .app { max-width: 560px; margin: 0 auto; padding-bottom: calc(168px + var(--safe-b)); }
+  header {
+    position: sticky; top: 0; z-index: 5;
+    padding: calc(8px + var(--safe-t)) 14px 8px;
+    background: rgba(243,239,230,.94); backdrop-filter: blur(8px);
+    display: flex; justify-content: space-between; align-items: center;
   }
-  .brand { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-  .brand h1 { font-size: 18px; margin: 0; letter-spacing: .02em; }
-  .brand p { margin: 2px 0 0; color: var(--muted); font-size: 12px; }
-  .icon-btn {
-    border: 1px solid var(--line); background: var(--card); color: var(--ink);
-    width: 40px; height: 40px; border-radius: 12px; font-size: 18px;
+  h1 { font-size: 17px; margin: 0; }
+  header p { margin: 2px 0 0; font-size: 12px; color: var(--muted); }
+  .icon-btn { border: 1px solid var(--line); background: var(--card); border-radius: 12px; width: 40px; height: 40px; }
+  .hero {
+    margin: 4px 14px 10px; background: #123E3C; color: white; border-radius: 22px;
+    min-height: 168px; padding: 16px 16px 14px; display: flex; flex-direction: column; justify-content: center;
   }
-  .modes {
-    display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-top: 12px;
+  .hero.doc { background: #123E3C; }
+  .hero.pat { background: #7F1D1D; }
+  .who { font-size: 13px; opacity: .8; font-weight: 700; }
+  .hero .emo { font-size: 34px; margin-top: 6px; }
+  .hero h2 { font-size: 32px; line-height: 1.25; margin: 6px 0; }
+  .hero .sub { font-size: 14px; opacity: .78; }
+  .hero-actions { display: flex; gap: 8px; margin-top: 10px; }
+  .hero-actions button, .ghost, .solid {
+    border-radius: 12px; padding: 8px 10px; font-weight: 700; font-size: 14px;
   }
-  .modes button {
-    border: 1px solid var(--line); background: var(--card); color: var(--muted);
-    border-radius: 14px; padding: 10px 6px; font-size: 14px; font-weight: 650;
-  }
-  .modes button.on { background: var(--teal); color: white; border-color: var(--teal); }
-  .wrap { padding: 12px 14px 20px; }
-  .chips { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; scrollbar-width: none; }
+  .hero-actions button { border: 0; background: rgba(255,255,255,.14); color: white; }
+  .thread { margin: 0 14px 12px; display: flex; flex-direction: column; gap: 6px; }
+  .bubble { max-width: 92%; border-radius: 14px; padding: 8px 10px; font-size: 14px; line-height: 1.35; }
+  .bubble.doc { align-self: flex-start; background: var(--teal-s); color: var(--teal-d); }
+  .bubble.pat { align-self: flex-end; background: #FFE4E6; color: #881337; }
+  .bubble small { display: block; opacity: .7; font-size: 11px; }
+  .label { margin: 8px 16px 6px; font-size: 13px; font-weight: 800; color: var(--muted); }
+  .chips { display: flex; gap: 8px; overflow-x: auto; padding: 0 14px 8px; scrollbar-width: none; }
   .chips::-webkit-scrollbar { display: none; }
-  .chip {
-    flex: 0 0 auto; border: 1px solid var(--line); background: var(--card);
-    border-radius: 999px; padding: 8px 12px; font-size: 13px; color: var(--ink); font-weight: 600;
-  }
-  .chip.on { background: var(--teal-s); color: var(--teal-d); border-color: #B7DEDB; }
-  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 8px; }
+  .chip { flex: 0 0 auto; border: 1px solid var(--line); background: var(--card); border-radius: 999px; padding: 8px 12px; font-weight: 700; }
+  .chip.on { background: var(--teal); color: white; border-color: var(--teal); }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 0 14px; }
   .phrase {
-    text-align: left; border: 1px solid var(--line); background: var(--card);
-    border-radius: var(--radius); padding: 14px 12px 12px; min-height: 108px;
-    box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 6px;
+    text-align: left; border: 1px solid var(--line); background: var(--card); border-radius: 16px;
+    padding: 10px; min-height: 72px; display: flex; flex-direction: column; gap: 4px;
   }
-  .phrase .emo { font-size: 26px; line-height: 1; }
-  .phrase .tx { font-size: 16px; font-weight: 700; line-height: 1.35; }
-  .phrase .sub { font-size: 12px; color: var(--muted); line-height: 1.35; }
-  .ans {
-    border: 0; border-radius: 20px; min-height: 84px; font-size: 22px; font-weight: 800;
-    color: white; box-shadow: var(--shadow);
+  .phrase b { font-size: 15px; line-height: 1.3; }
+  .phrase span { font-size: 12px; color: var(--muted); }
+  .composer { display: flex; gap: 8px; padding: 10px 14px 0; }
+  .composer input { flex: 1; border: 1px solid var(--line); border-radius: 14px; padding: 12px; font-size: 16px; background: white; }
+  .solid { border: 0; background: var(--teal); color: white; }
+  .ghost { border: 1px solid var(--line); background: var(--card); color: var(--ink); }
+  .dock {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 8;
+    background: #fffaf3; border-top: 1px solid var(--line);
+    padding: 8px 10px calc(8px + var(--safe-b));
   }
-  .ans.yes { background: var(--green); }
-  .ans.no { background: var(--rose); }
-  .ans.mid { background: var(--amber); }
-  .ans.info { background: var(--blue); }
-  .ans.soft { background: var(--card); color: var(--ink); border: 1px solid var(--line); }
-  .section-title { font-size: 13px; color: var(--muted); margin: 16px 2px 8px; font-weight: 700; letter-spacing: .04em; }
+  .dock-in { max-width: 560px; margin: 0 auto; }
+  .dock p { margin: 0 4px 6px; font-size: 12px; font-weight: 800; color: var(--muted); }
+  .ans { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+  .ans button { border: 0; border-radius: 14px; min-height: 52px; color: white; font-size: 15px; font-weight: 800; }
+  .yes { background: var(--green); } .no { background: var(--rose); } .mid { background: var(--amber); } .info { background: var(--blue); }
+  .more { display: flex; gap: 6px; margin-top: 6px; overflow-x: auto; }
+  .more button { flex: 0 0 auto; border: 1px solid var(--line); background: white; border-radius: 999px; padding: 8px 10px; font-weight: 700; }
+  .panel { margin: 8px 14px; background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 10px; }
   .pain { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; }
-  .pain button {
-    border: 0; border-radius: 12px; height: 48px; font-weight: 800; color: white; font-size: 16px;
-  }
-  .body-map { background: var(--card); border: 1px solid var(--line); border-radius: 20px; padding: 10px; }
-  .zone {
-    cursor: pointer;
-  }
-  .log {
-    background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 12px;
-    font-size: 13px; line-height: 1.55; color: var(--ink); min-height: 72px;
-  }
-  .row { display: flex; gap: 8px; }
-  .row > * { flex: 1; }
-  .ghost, .solid {
-    border-radius: 14px; padding: 12px; font-weight: 700; font-size: 15px;
-  }
-  .ghost { background: var(--card); border: 1px solid var(--line); color: var(--ink); }
-  .solid { background: var(--teal); border: 0; color: white; }
-  textarea {
-    width: 100%; min-height: 92px; border-radius: 16px; border: 1px solid var(--line);
-    padding: 12px; font-size: 18px; resize: vertical; background: white;
-  }
-  .quick { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0; }
-  .quick button {
-    border: 1px solid var(--line); background: white; border-radius: 999px; padding: 8px 10px; font-size: 14px;
-  }
-  .overlay {
-    position: fixed; inset: 0; background: #102E2D; color: white; z-index: 50;
-    display: none; flex-direction: column; padding: calc(16px + var(--safe-t)) 18px calc(16px + var(--safe-b));
-  }
-  .overlay.show { display: flex; }
-  .ov-top, .ov-bot { display: flex; gap: 8px; align-items: center; }
-  .ov-top button, .ov-bot button {
-    border: 0; background: rgba(255,255,255,.12); color: white; border-radius: 12px;
-    padding: 10px 12px; font-size: 15px; font-weight: 700;
-  }
-  .ov-main { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 14px; }
-  .ov-emo { font-size: 72px; line-height: 1; }
-  .ov-text { font-size: 40px; font-weight: 850; line-height: 1.25; letter-spacing: .01em; }
-  .ov-sub { font-size: 18px; opacity: .8; }
-  .toast {
-    position: fixed; left: 50%; bottom: calc(92px + var(--safe-b)); transform: translateX(-50%);
-    background: #1C1917; color: white; border-radius: 999px; padding: 10px 14px; font-size: 14px;
-    display: none; z-index: 40; max-width: 90vw;
-  }
-  .toast.show { display: block; }
-  .note { font-size: 12px; color: var(--muted); line-height: 1.5; margin-top: 14px; }
-  .sheet {
-    position: fixed; inset: 0; background: rgba(28,25,23,.35); z-index: 45; display: none;
-    align-items: flex-end; justify-content: center;
-  }
+  .pain button { border: 0; border-radius: 10px; height: 40px; color: white; font-weight: 800; }
+  .note { font-size: 12px; color: var(--muted); line-height: 1.5; padding: 8px 16px 0; }
+  .sheet { position: fixed; inset: 0; background: rgba(28,25,23,.35); display: none; align-items: flex-end; z-index: 20; }
   .sheet.show { display: flex; }
-  .sheet .panel {
-    width: min(520px, 100%); background: var(--bg); border-radius: 20px 20px 0 0;
-    padding: 16px 16px calc(16px + var(--safe-b));
-  }
-  .panel h3 { margin: 4px 0 8px; }
-  .font-size-lg .phrase .tx { font-size: 18px; }
-  .font-size-lg .ov-text { font-size: 46px; }
-  .hc { --bg:#000; --ink:#fff; --muted:#ddd; --card:#111; --line:#333; --teal-s:#063; }
-  .hidden { display: none !important; }
+  .sheet .box { width: min(560px, 100%); background: var(--bg); border-radius: 18px 18px 0 0; padding: 16px 16px calc(16px + var(--safe-b)); }
+  .hc { --bg:#000; --ink:#fff; --muted:#ddd; --card:#161616; --line:#333; --teal-s:#064e4c; }
+  .lg .hero h2 { font-size: 38px; }
 </style>
 </head>
 <body>
-<div class="app" id="app">
-  <header class="top">
-    <div class="brand">
-      <div>
-        <h1>泌尿科門診溝通板</h1>
-        <p>給聽障、語障朋友看的大字圖示 · 不能取代手語翻譯</p>
-      </div>
-      <button class="icon-btn" id="setBtn" aria-label="設定">Aa</button>
+<div class="app">
+  <header>
+    <div>
+      <h1>同一畫面溝通</h1>
+      <p>醫師點句子、患者點回答，兩邊同時看見</p>
     </div>
-    <div class="modes">
-      <button class="on" data-mode="doc">醫師說明</button>
-      <button data-mode="pat">患者回答</button>
-      <button data-mode="custom">自訂句子</button>
-    </div>
+    <button class="icon-btn" id="setBtn" aria-label="設定">Aa</button>
   </header>
-  <main class="wrap">
-    <section id="doc">
-      <div class="chips" id="cats"></div>
-      <div class="grid" id="phrases"></div>
-    </section>
-    <section id="pat" class="hidden">
-      <div class="section-title">看懂了嗎</div>
-      <div class="grid">
-        <button class="ans yes" data-ans="懂了">懂了</button>
-        <button class="ans no" data-ans="不懂，請再說一次">不懂</button>
-        <button class="ans info" data-ans="請慢一點">請慢一點</button>
-        <button class="ans mid" data-ans="請寫下來 / 用圖">請用圖</button>
-      </div>
-      <div class="section-title">是或不是</div>
-      <div class="grid">
-        <button class="ans yes" data-ans="是">是</button>
-        <button class="ans no" data-ans="不是">不是</button>
-        <button class="ans mid" data-ans="不確定">不確定</button>
-        <button class="ans info" data-ans="我有問題">我有問題</button>
-      </div>
-      <div class="section-title">現在有多痛 · 0 不痛，10 最痛</div>
-      <div class="pain" id="pain"></div>
-      <div class="section-title">哪裡不舒服 · 點身體</div>
-      <div class="body-map">
-        <svg viewBox="0 0 320 430" width="100%" role="img" aria-label="身體部位">
-          <ellipse cx="160" cy="42" rx="28" ry="32" fill="#F6E7D8" stroke="#C4B5A5"/>
-          <rect x="138" y="72" width="44" height="22" rx="8" fill="#F6E7D8" stroke="#C4B5A5"/>
-          <path d="M118 96 h84 l18 70 -28 8 -8 78 h-48 l-8 -78 -28 -8 z" fill="#F3D7C3" stroke="#C4B5A5"/>
-          <path d="M122 168 h76 v70 h-76 z" fill="#EED3C4" stroke="#C4B5A5"/>
-          <g class="zone" data-part="左邊腰">
-            <ellipse cx="108" cy="168" rx="22" ry="28" fill="#FDE68A" stroke="#B45309"/>
-            <text x="108" y="172" text-anchor="middle" font-size="12" fill="#7C2D12">左腰</text>
-          </g>
-          <g class="zone" data-part="右邊腰">
-            <ellipse cx="212" cy="168" rx="22" ry="28" fill="#FDE68A" stroke="#B45309"/>
-            <text x="212" y="172" text-anchor="middle" font-size="12" fill="#7C2D12">右腰</text>
-          </g>
-          <g class="zone" data-part="下腹部">
-            <rect x="128" y="214" width="64" height="42" rx="12" fill="#FCA5A5" stroke="#BE123C"/>
-            <text x="160" y="240" text-anchor="middle" font-size="13" fill="#881337">下腹</text>
-          </g>
-          <g class="zone" data-part="膀胱附近">
-            <ellipse cx="160" cy="268" rx="26" ry="16" fill="#93C5FD" stroke="#1D4ED8"/>
-            <text x="160" y="272" text-anchor="middle" font-size="11" fill="#1E3A8A">膀胱</text>
-          </g>
-          <g class="zone" data-part="會陰 / 尿道口">
-            <ellipse cx="160" cy="304" rx="18" ry="14" fill="#F9A8D4" stroke="#9D174D"/>
-            <text x="160" y="308" text-anchor="middle" font-size="11" fill="#831843">會陰</text>
-          </g>
-          <text x="160" y="390" text-anchor="middle" font-size="13" fill="#57534E">點黃、紅、藍、粉色塊告訴醫師位置</text>
-        </svg>
-      </div>
-      <div class="section-title">泌尿常見回答</div>
-      <div class="grid" id="patPhrases"></div>
-      <div class="section-title">其他需求</div>
-      <div class="grid">
-        <button class="ans soft" data-ans="請叫家屬進來">請叫家屬</button>
-        <button class="ans soft" data-ans="我需要手語翻譯">要手語翻譯</button>
-        <button class="ans soft" data-ans="請給我紙筆">請給紙筆</button>
-        <button class="ans soft" data-ans="我想上廁所">我想上廁所</button>
-        <button class="ans soft" data-ans="我同意">我同意</button>
-        <button class="ans soft" data-ans="我還不要決定">先不要決定</button>
-      </div>
-    </section>
-    <section id="custom" class="hidden">
-      <div class="section-title">打一句，再放大給患者看</div>
-      <textarea id="customText" placeholder="例如：請先去解尿，留中段尿"></textarea>
-      <div class="quick" id="quick"></div>
-      <div class="row">
-        <button class="solid" id="showCustom">放大顯示</button>
-        <button class="ghost" id="clearCustom">清空</button>
-      </div>
-      <div class="section-title">本次溝通紀錄</div>
-      <div class="log" id="log">尚未顯示句子。</div>
-      <div class="row" style="margin-top:8px">
-        <button class="ghost" id="copyLog">複製紀錄</button>
-        <button class="ghost" id="clearLog">清除紀錄</button>
-      </div>
-      <p class="note">重要說明、手術同意、檢查侵入同意，建議另請手語翻譯員。泌尿與生殖相關看診，可優先安排同性別翻譯，並先徵得患者同意。本板用淺白字與圖示輔助，不是臺灣手語本身。</p>
-    </section>
-  </main>
-</div>
+  <section class="hero doc" id="hero">
+    <div class="who" id="who">請先點一句</div>
+    <div class="emo" id="emo">👀</div>
+    <h2 id="now">請看這裡，我們用文字溝通</h2>
+    <div class="sub" id="sub">點下方綠、紅按鈕即可回答</div>
+    <div class="hero-actions">
+      <button id="speak">念給陪同者聽</button>
+      <button id="copy">複製紀錄</button>
+    </div>
+  </section>
+  <div class="thread" id="thread"></div>
 
-<div class="overlay" id="overlay" role="dialog" aria-modal="true">
-  <div class="ov-top">
-    <button id="ovClose">關閉</button>
-    <button id="ovSpeak">再念一次</button>
-    <span style="flex:1"></span>
-    <button id="ovPrev">上一句</button>
-    <button id="ovNext">下一句</button>
+  <div class="label">醫師點一句，立刻顯示在上面</div>
+  <div class="chips" id="cats"></div>
+  <div class="grid" id="phrases"></div>
+  <div class="composer">
+    <input id="custom" placeholder="或自己打一句">
+    <button class="solid" id="send">送出</button>
   </div>
-  <div class="ov-main">
-    <div class="ov-emo" id="ovEmo">🩺</div>
-    <div class="ov-text" id="ovText">請看這裡</div>
-    <div class="ov-sub" id="ovSub">醫師要告訴您</div>
-  </div>
-  <div class="ov-bot">
-    <button id="ovYes">患者：懂了</button>
-    <button id="ovNo">患者：不懂</button>
+  <details class="panel">
+    <summary>患者也可點疼痛與位置</summary>
+    <div class="pain" id="pain" style="margin-top:8px"></div>
+    <div class="more" id="parts" style="margin-top:8px"></div>
+  </details>
+  <p class="note">重要同意與手術說明仍建議手語翻譯。本板是圖文輔助，不是臺灣手語。紀錄只留在這支手機。</p>
+</div>
+<div class="dock">
+  <div class="dock-in">
+    <p>患者直接點</p>
+    <div class="ans">
+      <button class="yes" data-say="懂了">懂了</button>
+      <button class="no" data-say="不懂，請再說">不懂</button>
+      <button class="yes" data-say="是">是</button>
+      <button class="no" data-say="不是">不是</button>
+    </div>
+    <div class="more" id="patMore"></div>
   </div>
 </div>
-<div class="toast" id="toast"></div>
 <div class="sheet" id="sheet">
-  <div class="panel">
-    <h3>顯示設定</h3>
-    <div class="row">
+  <div class="box">
+    <h3>顯示</h3>
+    <div class="composer" style="padding:0">
       <button class="ghost" id="bigger">字再大</button>
       <button class="ghost" id="contrast">高對比</button>
+      <button class="ghost" id="clear">清除紀錄</button>
     </div>
-    <p class="note">iPhone：用 Safari 打開此檔 → 分享 → 加入主畫面，門診可離線使用。念出來是給陪同者聽的，患者主要看大字。</p>
-    <button class="solid" id="closeSet" style="width:100%;margin-top:8px">完成</button>
+    <button class="solid" id="closeSet" style="width:100%;margin-top:10px">完成</button>
   </div>
 </div>
-
 <script>
-const CATS = [
-  { id: "hi", name: "招呼" },
-  { id: "ask", name: "問診" },
-  { id: "exam", name: "檢查" },
-  { id: "dx", name: "說明" },
-  { id: "tx", name: "用藥回診" },
-  { id: "warn", name: "注意" }
-];
+const CATS = [["hi","招呼"],["ask","問診"],["exam","檢查"],["dx","說明"],["tx","用藥"],["warn","注意"]];
 const PHRASES = {
-  hi: [
-    ["👋", "您好，我是泌尿科醫師", "先打招呼"],
-    ["👀", "請看螢幕，我用文字跟您說", "建立溝通方式"],
-    ["👆", "看懂請點「懂了」", "確認理解"],
-    ["👪", "需要的話，請家屬一起看", "可請陪同者"],
-    ["🤟", "需要手語翻譯嗎？", "尊重語言權"],
-    ["🪑", "請坐，我們慢慢說", "降低緊張"]
-  ],
-  ask: [
-    ["❓", "今天哪裡不舒服？", "請指給我看"],
-    ["🚽", "尿尿有問題嗎？", "排尿症狀"],
-    ["⏱️", "這個問題多久了？", "天 / 週 / 月"],
-    ["🩸", "尿尿有血嗎？", "血尿"],
-    ["🔥", "尿尿時會痛嗎？", "灼熱、刺痛"],
-    ["🔁", "很常想尿嗎？", "頻尿、急尿"],
-    ["🌙", "晚上要起來尿尿嗎？", "夜尿幾次"],
-    ["🚫", "尿不出來，或尿很細？", "排尿困難"],
-    ["💧", "會漏尿嗎？", "咳嗽、急迫時"],
-    ["🌡️", "有發燒或發冷嗎？", "感染警訊"],
-    ["🤢", "有噁心、嘔吐嗎？", "結石常一起"],
-    ["💊", "對什麼藥過敏嗎？", "很重要"]
-  ],
-  exam: [
-    ["🛏️", "請躺到檢查床", "我帶您過去"],
-    ["👖", "請把褲子退到這個位置", "只露出需要的地方"],
-    ["🤲", "我要摸肚子，請放鬆", "會有點壓"],
-    ["↩️", "請側躺，臉朝這邊", "檢查姿勢"],
-    ["🖐️", "我要做肛門指診，看攝護腺", "會不舒服，很快"],
-    ["🚽", "請先去解尿，留中段尿", "不要接最前面"],
-    ["🧪", "請去抽血", "驗腎功能與感染"],
-    ["📡", "請去做超音波", "看腎臟、膀胱"],
-    ["📷", "請去照X光或電腦斷層", "看有沒有結石"],
-    ["🔬", "可能需要膀胱鏡", "從尿道看膀胱，我再說明"],
-    ["✅", "檢查結束，可以穿上", "謝謝您配合"]
-  ],
-  dx: [
-    ["🫧", "可能是泌尿道感染", "細菌引起"],
-    ["💎", "可能是結石", "腎或輸尿管"],
-    ["🔵", "可能是攝護腺肥大", "會尿不順、夜尿"],
-    ["🫙", "可能是膀胱的問題", "需再確認"],
-    ["🔍", "還要檢查才能確定", "現在先處理不舒服"],
-    ["🟢", "目前看起來不嚴重", "可門診治療"],
-    ["🏥", "建議住院觀察治療", "我幫您安排"],
-    ["✂️", "以後可能需要手術", "今天先說明，不急著決定"]
-  ],
-  tx: [
-    ["💊", "我開藥給您", "依藥袋時間吃"],
-    ["💧", "請多喝水", "除非我另外限制"],
-    ["🚫", "不要憋尿", "有尿意就去"],
-    ["🎨", "這個藥可能讓尿變色", "多為橘色或藍色，不要緊張"],
-    ["📅", "請依預約回診", "帶藥袋與檢查報告"],
-    ["✍️", "請簽名，表示了解", "不同意可以再問"],
-    ["📞", "有問題可回門診或急診", "不要硬撐"]
-  ],
-  warn: [
-    ["🚨", "發燒、劇痛、完全尿不出來，請急診", "不要等門診"],
-    ["🩸", "大量血尿或血塊，請急診", "尤其尿不出"],
-    ["😵", "頭暈、冒冷汗，請告訴我們", "可能是疼痛或感染"],
-    ["⚠️", "藥吃完不舒服就停，並回診", "紅疹、呼吸困難更要緊"],
-    ["🧴", "傷口或導尿管請保持清潔", "照護理師教的方式"],
-    ["🚱", "若我有說限水，就不要喝太多", "以當次醫囑為準"]
-  ]
+  hi: [["👋","您好，我是泌尿科醫師","先打招呼"],["👀","請看螢幕，我用文字跟您說","建立方式"],["👆","看懂請點下方「懂了」","確認理解"],["👪","需要的話，請家屬一起看","可請陪同"],["🤟","需要手語翻譯嗎？","可另外安排"],["🪑","請坐，我們慢慢說","不用緊張"]],
+  ask: [["❓","今天哪裡不舒服？","請指給我看"],["🚽","尿尿有問題嗎？","排尿症狀"],["⏱️","這個問題多久了？","天、週或月"],["🩸","尿尿有血嗎？","血尿"],["🔥","尿尿時會痛嗎？","灼熱、刺痛"],["🔁","很常想尿嗎？","頻尿、急尿"],["🌙","晚上要起來尿尿嗎？","夜尿幾次"],["🚫","尿不出來，或尿很細？","排尿困難"],["💧","會漏尿嗎？","咳嗽或急的時候"],["🌡️","有發燒或發冷嗎？","感染警訊"],["🤢","有噁心、嘔吐嗎？","常和結石一起"],["💊","對什麼藥過敏嗎？","請告訴我"]],
+  exam: [["🛏️","請躺到檢查床","我帶您過去"],["👖","請把褲子退到這個位置","只露需要的地方"],["🤲","我要摸肚子，請放鬆","會有點壓"],["↩️","請側躺，臉朝這邊","檢查姿勢"],["🖐️","我要做肛門指診，看攝護腺","會不舒服，很快"],["🚽","請先去解尿，留中段尿","不要接最前面"],["🧪","請去抽血","看腎功能與感染"],["📡","請去做超音波","看腎臟、膀胱"],["📷","請去照X光或電腦斷層","看有沒有結石"],["🔬","可能需要膀胱鏡","我再說明"],["✅","檢查結束，可以穿上","謝謝配合"]],
+  dx: [["🫧","可能是泌尿道感染","細菌引起"],["💎","可能是結石","腎或輸尿管"],["🔵","可能是攝護腺肥大","尿不順、夜尿"],["🫙","可能是膀胱的問題","還要確認"],["🔍","還要檢查才能確定","先處理不舒服"],["🟢","目前看起來不嚴重","可門診治療"],["🏥","建議住院觀察治療","我幫您安排"],["✂️","以後可能需要手術","今天先說明"]],
+  tx: [["💊","我開藥給您","依藥袋時間吃"],["💧","請多喝水","除非我另外限制"],["🚫","不要憋尿","有尿意就去"],["🎨","這個藥可能讓尿變色","橘色或藍色都不要緊張"],["📅","請依預約回診","帶藥袋與報告"],["✍️","請簽名，表示了解","不同意可以再問"],["📞","有問題可回門診或急診","不要硬撐"]],
+  warn: [["🚨","發燒、劇痛、完全尿不出來，請急診","不要等門診"],["🩸","大量血尿或血塊，請急診","尤其尿不出"],["😵","頭暈、冒冷汗，請告訴我們","可能是疼痛或感染"],["⚠️","藥吃完不舒服就停，並回診","紅疹、呼吸困難更要緊"]]
 };
-const PAT = [
-  ["🩸", "尿尿有血"],
-  ["🔥", "尿尿會痛"],
-  ["🔁", "很常想尿"],
-  ["🌙", "晚上要起來尿"],
-  ["🚫", "尿不出來"],
-  ["💧", "會漏尿"],
-  ["🌡️", "有發燒"],
-  ["😣", "右邊腰很痛"],
-  ["😣", "左邊腰很痛"],
-  ["🤕", "下腹脹痛"],
-  ["⏱️", "已經好幾天"],
-  ["🆕", "今天才開始"]
-];
-const QUICK = ["請", "不要", "先", "躺下", "側躺", "放鬆", "解尿", "喝水", "吃藥", "回診", "急診", "有血尿", "會痛", "尿不出來", "我再說明", "請家屬看"];
+const PAT = ["有點痛","很痛","不痛","我想上廁所","請叫家屬","要手語翻譯","我同意","先不要決定"];
+const PARTS = ["左邊腰","右邊腰","下腹","膀胱","會陰"];
 const log = [];
 let cat = "hi";
-let currentList = [];
-let currentIndex = 0;
-let fontLarge = false;
-let hc = false;
-
 const $ = (id) => document.getElementById(id);
-function toast(msg) {
-  const t = $("toast");
-  t.textContent = msg;
-  t.classList.add("show");
-  clearTimeout(toast._t);
-  toast._t = setTimeout(() => t.classList.remove("show"), 1600);
-}
-function addLog(who, text) {
-  const time = new Date().toLocaleTimeString("zh-TW", { hour: "2-digit", minute: "2-digit" });
-  log.push(`${time} ${who}：${text}`);
-  $("log").textContent = log.join("\n");
-}
-function speak(text) {
-  if (!window.speechSynthesis) return;
-  window.speechSynthesis.cancel();
-  const u = new SpeechSynthesisUtterance(text);
-  u.lang = "zh-TW";
-  u.rate = 0.88;
-  speechSynthesis.speak(u);
-}
-function showOverlay(item, list, index, who) {
-  currentList = list;
-  currentIndex = index;
-  $("ovEmo").textContent = item[0];
-  $("ovText").textContent = item[1];
-  $("ovSub").textContent = item[2] || (who === "患者" ? "患者要告訴醫師" : "醫師要告訴您");
-  $("overlay").classList.add("show");
-  addLog(who || "醫師", item[1]);
-  if (navigator.vibrate) navigator.vibrate(12);
+function time() { return new Date().toLocaleTimeString("zh-TW", { hour: "2-digit", minute: "2-digit" }); }
+function say(role, emo, text, sub) {
+  $("who").textContent = (role === "doc" ? "醫師" : "患者") + " · " + time();
+  $("emo").textContent = emo;
+  $("now").textContent = text;
+  $("sub").textContent = sub || (role === "doc" ? "請看這句，再用下方按鈕回答" : "醫師已看到您的回答");
+  $("hero").className = "hero " + role;
+  const b = document.createElement("div");
+  b.className = "bubble " + role;
+  b.innerHTML = `<small>${role === "doc" ? "醫師" : "患者"} ${time()}</small>${text}`;
+  $("thread").prepend(b);
+  log.push(`${time()} ${role === "doc" ? "醫師" : "患者"}：${text}`);
+  if (navigator.vibrate) navigator.vibrate(10);
 }
 function renderCats() {
-  $("cats").innerHTML = CATS.map(c => `<button class="chip ${c.id===cat?"on":""}" data-cat="${c.id}">${c.name}</button>`).join("");
+  $("cats").innerHTML = CATS.map(([id, name]) => `<button class="chip ${id===cat?"on":""}" data-cat="${id}">${name}</button>`).join("");
 }
 function renderPhrases() {
-  const list = PHRASES[cat];
-  $("phrases").innerHTML = list.map((p, i) => `
-    <button class="phrase" data-i="${i}">
-      <span class="emo">${p[0]}</span>
-      <span class="tx">${p[1]}</span>
-      <span class="sub">${p[2]}</span>
-    </button>`).join("");
+  $("phrases").innerHTML = PHRASES[cat].map((p, i) => `<button class="phrase" data-i="${i}"><b>${p[0]} ${p[1]}</b><span>${p[2]}</span></button>`).join("");
 }
-function renderPain() {
-  const colors = ["#059669","#10B981","#65A30D","#CA8A04","#D97706","#EA580C","#DC2626","#BE123C","#9F1239","#881337","#7F1D1D"];
-  $("pain").innerHTML = Array.from({length:11}, (_, n) => `<button data-pain="${n}" style="background:${colors[n]}">${n}</button>`).join("");
-}
-function renderPat() {
-  $("patPhrases").innerHTML = PAT.map((p, i) => `
-    <button class="phrase" data-pi="${i}">
-      <span class="emo">${p[0]}</span>
-      <span class="tx">${p[1]}</span>
-    </button>`).join("");
-}
-function renderQuick() {
-  $("quick").innerHTML = QUICK.map(w => `<button data-w="${w}">${w}</button>`).join("");
-}
-function setMode(mode) {
-  document.querySelectorAll(".modes button").forEach(b => b.classList.toggle("on", b.dataset.mode === mode));
-  $("doc").classList.toggle("hidden", mode !== "doc");
-  $("pat").classList.toggle("hidden", mode !== "pat");
-  $("custom").classList.toggle("hidden", mode !== "custom");
-}
-$("cats").addEventListener("click", (e) => {
-  const b = e.target.closest("[data-cat]");
-  if (!b) return;
-  cat = b.dataset.cat;
-  renderCats();
-  renderPhrases();
-});
-$("phrases").addEventListener("click", (e) => {
-  const b = e.target.closest("[data-i]");
-  if (!b) return;
-  const i = Number(b.dataset.i);
-  showOverlay(PHRASES[cat][i], PHRASES[cat], i, "醫師");
-});
-document.querySelector(".modes").addEventListener("click", (e) => {
-  const b = e.target.closest("[data-mode]");
-  if (!b) return;
-  setMode(b.dataset.mode);
-});
-$("pat").addEventListener("click", (e) => {
-  const ans = e.target.closest("[data-ans]");
-  if (ans) {
-    showOverlay(["💬", ans.dataset.ans, "患者要告訴醫師"], [[ "💬", ans.dataset.ans, "患者要告訴醫師" ]], 0, "患者");
-    return;
-  }
-  const pain = e.target.closest("[data-pain]");
-  if (pain) {
-    const n = pain.dataset.pain;
-    const label = `疼痛 ${n} 分（0 不痛，10 最痛）`;
-    showOverlay(["😣", label, "患者要告訴醫師"], [["😣", label, ""]], 0, "患者");
-    return;
-  }
-  const part = e.target.closest("[data-part]");
-  if (part) {
-    const label = `不舒服在：${part.dataset.part}`;
-    showOverlay(["📍", label, "患者指出的位置"], [["📍", label, ""]], 0, "患者");
-    return;
-  }
-  const pi = e.target.closest("[data-pi]");
-  if (pi) {
-    const p = PAT[Number(pi.dataset.pi)];
-    showOverlay([p[0], p[1], "患者要告訴醫師"], PAT.map(x => [x[0], x[1], "患者要告訴醫師"]), Number(pi.dataset.pi), "患者");
-  }
-});
-$("quick").addEventListener("click", (e) => {
-  const b = e.target.closest("[data-w]");
-  if (!b) return;
-  const box = $("customText");
-  box.value = (box.value + (box.value && !box.value.endsWith(" ") ? "" : "") + b.dataset.w).trim();
-  box.focus();
-});
-$("showCustom").onclick = () => {
-  const text = $("customText").value.trim();
-  if (!text) return toast("請先輸入句子");
-  showOverlay(["📝", text, "醫師自訂說明"], [["📝", text, ""]], 0, "醫師");
-};
-$("clearCustom").onclick = () => { $("customText").value = ""; };
-$("ovClose").onclick = () => { $("overlay").classList.remove("show"); speechSynthesis.cancel(); };
-$("ovSpeak").onclick = () => speak($("ovText").textContent);
-$("ovPrev").onclick = () => {
-  if (!currentList.length) return;
-  currentIndex = (currentIndex - 1 + currentList.length) % currentList.length;
-  const item = currentList[currentIndex];
-  $("ovEmo").textContent = item[0];
-  $("ovText").textContent = item[1];
-  $("ovSub").textContent = item[2] || "";
-  addLog("醫師", item[1]);
-};
-$("ovNext").onclick = () => {
-  if (!currentList.length) return;
-  currentIndex = (currentIndex + 1) % currentList.length;
-  const item = currentList[currentIndex];
-  $("ovEmo").textContent = item[0];
-  $("ovText").textContent = item[1];
-  $("ovSub").textContent = item[2] || "";
-  addLog("醫師", item[1]);
-};
-$("ovYes").onclick = () => { addLog("患者", "懂了"); toast("已記錄：患者懂了"); };
-$("ovNo").onclick = () => { addLog("患者", "不懂，請再說一次"); toast("已記錄：患者不懂"); };
-$("copyLog").onclick = async () => {
-  const text = log.join("\n") || "無紀錄";
-  try { await navigator.clipboard.writeText(text); toast("已複製，可貼到病歷"); }
-  catch { toast("這台裝置無法直接複製，請長按紀錄"); }
-};
-$("clearLog").onclick = () => { log.length = 0; $("log").textContent = "尚未顯示句子。"; };
+$("cats").onclick = (e) => { const b = e.target.closest("[data-cat]"); if (!b) return; cat = b.dataset.cat; renderCats(); renderPhrases(); };
+$("phrases").onclick = (e) => { const b = e.target.closest("[data-i]"); if (!b) return; const p = PHRASES[cat][b.dataset.i]; say("doc", p[0], p[1], p[2]); };
+$("send").onclick = () => { const t = $("custom").value.trim(); if (!t) return; say("doc", "📝", t, "醫師自訂"); $("custom").value = ""; };
+$("custom").addEventListener("keydown", (e) => { if (e.key === "Enter") $("send").click(); });
+document.querySelector(".ans").onclick = (e) => { const b = e.target.closest("[data-say]"); if (b) say("pat", "💬", b.dataset.say, "患者回答"); };
+$("patMore").innerHTML = PAT.map(t => `<button data-say="${t}">${t}</button>`).join("");
+$("patMore").onclick = (e) => { const b = e.target.closest("[data-say]"); if (b) say("pat", "💬", b.dataset.say, "患者回答"); };
+$("parts").innerHTML = PARTS.map(t => `<button data-part="${t}">${t}</button>`).join("");
+$("parts").onclick = (e) => { const b = e.target.closest("[data-part]"); if (b) say("pat", "📍", "不舒服在" + b.dataset.part, "患者指出位置"); };
+const colors = ["#059669","#10B981","#65A30D","#CA8A04","#D97706","#EA580C","#DC2626","#BE123C","#9F1239","#881337","#7F1D1D"];
+$("pain").innerHTML = colors.map((c, n) => `<button data-pain="${n}" style="background:${c}">${n}</button>`).join("");
+$("pain").onclick = (e) => { const b = e.target.closest("[data-pain]"); if (b) say("pat", "😣", `疼痛 ${b.dataset.pain} 分`, "0 不痛，10 最痛"); };
+$("speak").onclick = () => { if (!speechSynthesis) return; speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance($("now").textContent); u.lang = "zh-TW"; u.rate = .88; speechSynthesis.speak(u); };
+$("copy").onclick = async () => { try { await navigator.clipboard.writeText(log.join("\n") || "無紀錄"); } catch (e) {} };
 $("setBtn").onclick = () => $("sheet").classList.add("show");
 $("closeSet").onclick = () => $("sheet").classList.remove("show");
-$("sheet").addEventListener("click", (e) => { if (e.target.id === "sheet") $("sheet").classList.remove("show"); });
-$("bigger").onclick = () => {
-  fontLarge = !fontLarge;
-  document.body.classList.toggle("font-size-lg", fontLarge);
-  toast(fontLarge ? "已放大" : "已恢復");
-};
-$("contrast").onclick = () => {
-  hc = !hc;
-  document.body.classList.toggle("hc", hc);
-};
-renderCats();
-renderPhrases();
-renderPain();
-renderPat();
-renderQuick();
+$("bigger").onclick = () => document.body.classList.toggle("lg");
+$("contrast").onclick = () => document.body.classList.toggle("hc");
+$("clear").onclick = () => { log.length = 0; $("thread").innerHTML = ""; $("now").textContent = "紀錄已清除"; };
+renderCats(); renderPhrases();
 </script>
 </body>
 </html>
