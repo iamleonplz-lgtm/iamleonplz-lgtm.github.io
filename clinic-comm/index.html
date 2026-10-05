@@ -6,7 +6,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#0E6E6B">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<title>泌尿科門診溝通板 版本6</title>
+<title>泌尿科門診溝通板 版本7</title>
 <style>
   :root { --line:#E6DFD2; --safe-b:env(safe-area-inset-bottom,0px); --safe-t:env(safe-area-inset-top,0px); }
   * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
@@ -34,8 +34,14 @@
   .choices { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
   .choices button { display:flex; align-items:center; gap:8px; border:1px solid var(--line); background:#fff; border-radius:14px; padding:10px; font-size:18px; font-weight:800; text-align:left; }
   .choices svg { width:46px; height:46px; flex:0 0 46px; }
-  .said img { max-width:100%; max-height:120px; background:#fff; border-radius:10px; }
+  .said img { width:100%; max-height:180px; object-fit:contain; background:#fff; border-radius:10px; }
   .write-btn { margin:0 12px 8px; min-height:64px; border:0; border-radius:16px; background:#0E6E6B; color:#fff; font-size:24px; font-weight:800; }
+  .ghost { border:1px solid var(--line); background:#fff; border-radius:14px; padding:12px; font-size:18px; font-weight:800; }
+  #writeSheet { align-items:stretch; }
+  #writeSheet .box { width:100%; max-width:none; height:100%; max-height:none; border-radius:0; display:flex; flex-direction:column; }
+  .pad { width:100%; flex:1; min-height:280px; background:#fff; border:2px solid #1C1917; border-radius:16px; touch-action:none; display:block; }
+  .pen { display:flex; gap:8px; margin:8px 0; }
+  .pen button.on { background:#0E6E6B; color:#fff; }
 </style>
 </head>
 <body>
@@ -46,7 +52,7 @@
     <p class="hint" id="docHint">只用語音。說完變成大字，再按一次可停止。</p>
   </section>
   <section class="pat">
-    <div class="said" id="patNow">版本6：手寫在這行正下方</div>
+    <div class="said" id="patNow">版本7：手寫板已調整</div>
     <button class="write-btn" id="writeBtn" type="button">手寫</button>
     <div class="list" id="freqMain"></div>
     <div class="group">症狀</div>
@@ -65,6 +71,11 @@
 <div class="sheet" id="writeSheet">
   <div class="box">
     <h3>請用手指寫</h3>
+    <div class="pen">
+      <button class="ghost" data-pen="3" type="button">細</button>
+      <button class="ghost on" data-pen="6" type="button">中</button>
+      <button class="ghost" data-pen="10" type="button">粗</button>
+    </div>
     <canvas class="pad" id="pad"></canvas>
     <div class="row" style="display:flex;gap:8px;margin-top:8px">
       <button class="ghost" id="clearPad">清除</button>
@@ -142,29 +153,65 @@ $("choices").onclick = (e) => {
 };
 $("sheetClose").onclick = () => { pending = null; $("sheet").classList.remove("show"); };
 const pad = $("pad"), ctx = pad.getContext("2d");
-let drawing = false;
+let drawing = false, pen = 6, ink = null;
 function sizePad() {
   const r = pad.getBoundingClientRect();
-  pad.width = r.width * 2; pad.height = r.height * 2;
+  const w = Math.max(1, Math.floor(r.width));
+  const h = Math.max(1, Math.floor(r.height));
+  const prev = ink;
+  pad.width = w * 2;
+  pad.height = h * 2;
   ctx.setTransform(2, 0, 0, 2, 0, 0);
-  ctx.lineWidth = 4; ctx.lineCap = "round"; ctx.strokeStyle = "#1C1917";
-  ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, r.width, r.height);
+  ctx.fillStyle = "#fff";
+  ctx.fillRect(0, 0, w, h);
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
+  ctx.strokeStyle = "#1C1917";
+  ctx.lineWidth = pen;
+  if (prev) ctx.drawImage(prev, 0, 0, w, h);
 }
-function pos(e) {
+function remember() { ink = new Image(); ink.src = pad.toDataURL(); }
+function point(e) {
   const r = pad.getBoundingClientRect();
-  const t = e.touches ? e.touches[0] : e;
-  return { x: t.clientX - r.left, y: t.clientY - r.top };
+  const x = e.clientX - r.left;
+  const y = e.clientY - r.top;
+  return { x: Math.max(0, Math.min(r.width, x)), y: Math.max(0, Math.min(r.height, y)) };
 }
-function openPad() { $("writeSheet").classList.add("show"); setTimeout(sizePad, 30); }
-function startDraw(e) { drawing = true; const p = pos(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); e.preventDefault(); }
-function moveDraw(e) { if (!drawing) return; const p = pos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); e.preventDefault(); }
+function openPad() {
+  $("writeSheet").classList.add("show");
+  requestAnimationFrame(() => requestAnimationFrame(sizePad));
+}
+function startDraw(e) {
+  if (e.button !== undefined && e.button !== 0) return;
+  drawing = true;
+  pad.setPointerCapture(e.pointerId);
+  const p = point(e);
+  ctx.beginPath();
+  ctx.moveTo(p.x, p.y);
+  ctx.lineTo(p.x + 0.2, p.y + 0.2);
+  ctx.stroke();
+  e.preventDefault();
+}
+function moveDraw(e) {
+  if (!drawing) return;
+  const p = point(e);
+  ctx.lineTo(p.x, p.y);
+  ctx.stroke();
+  e.preventDefault();
+}
+function endDraw() { if (!drawing) return; drawing = false; remember(); }
 pad.addEventListener("pointerdown", startDraw);
 pad.addEventListener("pointermove", moveDraw);
-pad.addEventListener("pointerup", () => drawing = false);
-pad.addEventListener("touchstart", startDraw, { passive: false });
-pad.addEventListener("touchmove", moveDraw, { passive: false });
-pad.addEventListener("touchend", () => drawing = false);
-$("clearPad").onclick = sizePad;
+pad.addEventListener("pointerup", endDraw);
+pad.addEventListener("pointercancel", endDraw);
+document.querySelector(".pen").onclick = (e) => {
+  const b = e.target.closest("[data-pen]");
+  if (!b) return;
+  pen = Number(b.dataset.pen);
+  ctx.lineWidth = pen;
+  document.querySelectorAll(".pen button").forEach(el => el.classList.toggle("on", el === b));
+};
+$("clearPad").onclick = () => { ink = null; sizePad(); };
 $("closePad").onclick = () => $("writeSheet").classList.remove("show");
 $("donePad").onclick = () => {
   $("patNow").innerHTML = `<img alt="患者手寫" src="${pad.toDataURL()}">`;
