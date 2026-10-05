@@ -44,10 +44,8 @@
     <p class="hint" id="docHint">只用語音。說完變成大字，再按一次可停止。</p>
   </section>
   <section class="pat">
-    <div class="said" id="patNow">患者請點下面。時間和次數在最上面</div>
-    <div class="group">時間長短</div>
-    <div class="list" id="timeMain"></div>
-    <div class="group">次數頻率</div>
+    <div class="said" id="patNow">患者請點下面。頻率點進去再選</div>
+    <div class="group">頻率</div>
     <div class="list" id="freqMain"></div>
     <div class="group">症狀</div>
     <div class="list" id="patMain"></div>
@@ -90,8 +88,7 @@ function icon(kind) {
   };
   return pics[kind] || face("ok");
 }
-const TIME = [["今天才開始","clock"],["昨天開始","clock"],["好幾天","clock"],["約一週","clock"],["好幾個星期","clock"],["好幾個月","clock"],["一直都有","clock"],["時好時壞","clock"]];
-const FREQ = [["次數頻率", "clock", ["一天 1 到 3 次","一天 4 到 6 次","一天 7 到 10 次","一天 10 次以上","幾乎一直想尿","夜尿 0 次","夜尿 1 次","夜尿 2 次","夜尿 3 次","夜尿 4 次","夜尿 5 次以上"]]];
+const FREQ = [["頻率", "clock", ["今天才開始","昨天開始","好幾天","約一週","好幾個星期","好幾個月","一直都有","時好時壞","一天 1 到 3 次","一天 4 到 6 次","一天 7 到 10 次","一天 10 次以上","幾乎一直想尿","夜尿 0 次","夜尿 1 次","夜尿 2 次","夜尿 3 次","夜尿 4 次","夜尿 5 次以上"]]];
 const PAT = [
   ["痛", "pain", ["左邊腰","右邊腰","下腹","會陰","尿道口","有一點痛","很痛","痛到睡不著"]],
   ["血尿", "pee", ["一點點血","整泡都紅","有血塊","現在沒有"]],
@@ -121,7 +118,6 @@ function fill(id, items) {
     if (item[2]) openChoices(item[0], item[2]);
   };
 }
-fill("timeMain", TIME);
 fill("freqMain", FREQ);
 fill("patMain", PAT);
 fill("talkMain", TALK);
