@@ -49,7 +49,7 @@
 </div>
 <div class="sheet" id="sheet">
   <div class="box">
-    <h3 id="sheetTitle">請選擇</h3>
+    <h3 id="sheetTitle">請選細節</h3>
     <div class="choices" id="choices"></div>
     <button class="ghost" id="sheetClose">先不選</button>
   </div>
@@ -77,24 +77,26 @@ function icon(kind) {
     belly: `<svg viewBox="0 0 56 56"><text x="28" y="10" text-anchor="middle" font-size="9" font-weight="700">正面</text><path d="M16 16 H40 V32 Q40 48 28 48 Q16 32 16 16 Z" fill="#FBCFE8" stroke="#1C1917"/><ellipse cx="28" cy="34" rx="9" ry="6" fill="#E11D48"/><text x="28" y="37" text-anchor="middle" font-size="9" fill="#fff" font-weight="800">下腹</text></svg>`,
     bladder: `<svg viewBox="0 0 56 56"><path d="M16 18 H40 V30 Q40 46 28 46 Q16 30 16 18 Z" fill="#FBCFE8" stroke="#1C1917"/><ellipse cx="28" cy="28" rx="9" ry="6" fill="#60A5FA" stroke="#1C1917"/><text x="28" y="31" text-anchor="middle" font-size="8" font-weight="800">膀胱</text><path d="M28 34 V46" stroke="#1D4ED8" stroke-width="2"/></svg>`,
     perineum: `<svg viewBox="0 0 56 56"><path d="M18 14 H38 V28 Q38 40 28 40 Q18 28 18 14 Z" fill="#FBCFE8" stroke="#1C1917"/><ellipse cx="28" cy="34" rx="5" ry="4" fill="#DB2777" stroke="#1C1917"/><text x="28" y="50" text-anchor="middle" font-size="10" font-weight="700">兩腿中間</text></svg>`,
-    urethra: `<svg viewBox="0 0 56 56"><path d="M23 8 H33 V22 H30 V42 H26 V22 H23 Z" fill="#BFDBFE" stroke="#1C1917"/><circle cx="28" cy="44" r="3" fill="#1D4ED8"/><text x="28" y="54" text-anchor="middle" font-size="10" font-weight="700">尿道口</text></svg>`
+    urethra: `<svg viewBox="0 0 56 56"><path d="M23 8 H33 V22 H30 V42 H26 V22 H23 Z" fill="#BFDBFE" stroke="#1C1917"/><circle cx="28" cy="44" r="3" fill="#1D4ED8"/><text x="28" y="54" text-anchor="middle" font-size="10" font-weight="700">尿道口</text></svg>`,
+    drop: `<svg viewBox="0 0 56 56"><path d="M28 8 Q42 28 28 48 Q14 28 28 8 Z" fill="#FCA5A5" stroke="#1C1917" stroke-width="2"/></svg>`
   };
   return pics[kind] || face("ok");
 }
 const PAT = [
+  ["痛", "pain", ["左邊腰","右邊腰","下腹","會陰","尿道口","有一點痛","很痛","痛到睡不著","今天開始","已經好幾天"]],
+  ["血尿", "pee", ["一點點血","整泡都紅","有血塊","今天開始","已經好幾天","現在沒有"]],
+  ["尿痛", "pee", ["解尿時痛","解完還痛","尿道口痛","有一點痛","很痛","不會痛"]],
+  ["頻尿急尿", "clock", ["很常想尿","很急，忍不住","尿完還想尿","白天很多次","不會"]],
+  ["尿不出來", "body", ["完全尿不出","尿很細","要用力才尿得出","尿完還想尿","可以尿"]],
+  ["漏尿", "drop", ["咳嗽、出力就漏","很急就漏","一直漏","只有幾滴","不會漏"]],
+  ["夜尿", "moon", ["不用起來","1 次","2 次","3 次","4 次以上"]],
+  ["發燒", "pain", ["有發燒","發冷","噁心","沒有發燒"]],
   ["懂了", "yes"],
-  ["不懂，請再說", "ask"],
+  ["不懂", "ask"],
   ["是", "yes"],
-  ["不是", "no"],
-  ["不確定", "maybe"],
-  ["哪裡不舒服", "body", ["左邊腰","右邊腰","下腹","膀胱","會陰","尿道"]],
-  ["多久了", "clock", ["今天才開始","昨天","好幾天","好幾個星期","好幾個月","一直都有"]],
-  ["有多痛", "pain", ["不痛","有一點痛","很痛","痛到睡不著"]],
-  ["尿尿的狀況", "pee", ["尿尿有血","尿尿會痛","很常想尿","很急","尿不出來","尿很細","會漏尿","晚上要起來尿"]],
-  ["夜尿幾次", "moon", ["0 次","1 次","2 次","3 次","4 次以上"]],
-  ["其他", "more", ["請慢一點","請寫大一點","我有問題","我想上廁所","請叫家屬","要手語翻譯","我同意","先不要決定"]]
+  ["不是", "no"]
 ];
-const CHOICE_ICON = { "左邊腰":"left","右邊腰":"right","下腹":"belly","膀胱":"bladder","會陰":"perineum","尿道":"urethra","不痛":"yes","有一點痛":"maybe","很痛":"pain","痛到睡不著":"pain" };
+const CHOICE_ICON = { "左邊腰":"left","右邊腰":"right","下腹":"belly","會陰":"perineum","尿道口":"urethra","有一點痛":"maybe","很痛":"pain","痛到睡不著":"pain","不會痛":"yes","不會":"yes","可以尿":"yes","不會漏":"yes","沒有發燒":"yes","現在沒有":"yes","不用起來":"yes" };
 let pending = null;
 const $ = (id) => document.getElementById(id);
 function card(text, kind) { return icon(CHOICE_ICON[text] || kind) + `<span>${text}</span>`; }
