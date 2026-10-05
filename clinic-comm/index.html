@@ -10,42 +10,40 @@
   :root { --line:#E6DFD2; --safe-b:env(safe-area-inset-bottom,0px); --safe-t:env(safe-area-inset-top,0px); }
   * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
   html, body { margin:0; height:100%; background:#F7F4EE; color:#1C1917; font-family:"PingFang TC","Noto Sans TC",sans-serif; }
-  button, input { font-family:inherit; }
-  button { cursor:pointer; }
+  button { font-family:inherit; cursor:pointer; }
   .split { height:100dvh; display:flex; flex-direction:column; }
-  .half { min-height:0; display:flex; flex-direction:column; }
-  .doc { flex:0 0 42%; background:#F3FAF9; }
-  .pat { flex:1; background:#FFF7F7; border-top:3px solid #E7E0D4; }
-  .bar { display:flex; align-items:center; justify-content:space-between; padding:calc(8px + var(--safe-t)) 12px 6px; }
-  .pat .bar { padding-top:8px; }
-  .bar b { font-size:22px; }
-  .mic { border:0; border-radius:14px; background:#6D28D9; color:#fff; font-size:22px; font-weight:800; min-height:52px; padding:0 18px; }
+  .doc { flex:0 0 38%; background:#F3FAF9; display:flex; flex-direction:column; padding:calc(8px + var(--safe-t)) 12px 10px; }
+  .pat { flex:1; min-height:0; background:#FFF7F7; border-top:3px solid #E7E0D4; display:flex; flex-direction:column; }
+  .top { display:flex; align-items:center; justify-content:space-between; gap:8px; }
+  b { font-size:22px; }
+  .mic { border:0; border-radius:16px; background:#6D28D9; color:#fff; font-size:22px; font-weight:800; min-height:56px; padding:0 18px; }
   .mic.on { background:#BE123C; }
-  .said { margin:0 12px 8px; border-radius:18px; min-height:108px; padding:16px; display:flex; align-items:center; color:#fff; font-size:34px; font-weight:800; line-height:1.25; }
-  .doc .said { background:#123E3C; flex:1; }
-  .pat .said { background:#7F1D1D; min-height:88px; }
-  .hint { margin:0 14px 8px; color:#57534E; font-size:16px; }
+  .said { border-radius:18px; padding:16px; display:flex; align-items:center; color:#fff; font-size:34px; font-weight:800; line-height:1.25; }
+  .doc .said { background:#123E3C; flex:1; margin-top:8px; }
+  .pat .said { background:#7F1D1D; min-height:84px; margin:8px 12px; }
+  .hint { margin:6px 2px 0; color:#57534E; font-size:16px; }
   .list { flex:1; min-height:0; overflow:auto; display:grid; grid-template-columns:1fr 1fr; gap:8px; align-content:start; padding:0 12px calc(10px + var(--safe-b)); }
-  .phrase { text-align:left; border:1px solid var(--line); background:#fff; border-radius:14px; padding:16px 12px; font-size:22px; font-weight:800; }
+  .phrase { display:flex; align-items:center; gap:8px; text-align:left; border:1px solid var(--line); background:#fff; border-radius:16px; padding:10px; font-size:20px; font-weight:800; }
+  .phrase svg { width:54px; height:54px; flex:0 0 54px; }
   .sheet { position:fixed; inset:0; background:rgba(28,25,23,.4); display:none; align-items:flex-end; z-index:30; }
   .sheet.show { display:flex; }
-  .box { width:min(560px,100%); margin:0 auto; background:#F7F4EE; border-radius:20px 20px 0 0; padding:16px 14px calc(16px + var(--safe-b)); max-height:70vh; overflow:auto; }
+  .box { width:min(560px,100%); margin:0 auto; background:#F7F4EE; border-radius:20px 20px 0 0; padding:16px 14px calc(16px + var(--safe-b)); max-height:72vh; overflow:auto; }
   .box h3 { margin:0 0 10px; font-size:22px; }
-  .choices { display:flex; flex-direction:column; gap:8px; }
-  .choices button, .ghost { border:1px solid var(--line); background:#fff; border-radius:14px; padding:14px; font-size:22px; font-weight:800; text-align:left; }
-  .ghost { width:100%; margin-top:8px; text-align:center; }
+  .choices { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+  .choices button { display:flex; align-items:center; gap:8px; border:1px solid var(--line); background:#fff; border-radius:14px; padding:10px; font-size:18px; font-weight:800; text-align:left; }
+  .choices svg { width:46px; height:46px; flex:0 0 46px; }
+  .ghost { width:100%; margin-top:8px; border:1px solid var(--line); background:#fff; border-radius:14px; padding:12px; font-size:18px; font-weight:800; }
 </style>
 </head>
 <body>
 <div class="split">
-  <section class="half doc">
-    <div class="bar"><b>醫師</b><button class="mic" id="micDoc">按住說</button></div>
-    <div class="said" id="docNow">請按右上角，說一句</div>
-    <p class="hint" id="docHint">說完會變成上面的字。再按一次可停止。</p>
+  <section class="doc">
+    <div class="top"><b>醫師</b><button class="mic" id="micDoc">說話轉文字</button></div>
+    <div class="said" id="docNow">請按右上角說話</div>
+    <p class="hint" id="docHint">只用語音。說完變成大字，再按一次可停止。</p>
   </section>
-  <section class="half pat">
-    <div class="bar"><b>患者</b></div>
-    <div class="said" id="patNow">請點下面回答</div>
+  <section class="pat">
+    <div class="said" id="patNow">患者請點圖回答</div>
     <div class="list" id="patMain"></div>
   </section>
 </div>
@@ -57,81 +55,93 @@
   </div>
 </div>
 <script>
+function face(mood) {
+  const mouth = { ok:"M16 34 Q28 44 40 34", bad:"M16 40 Q28 30 40 40", flat:"M16 36 H40", wow:"M22 34 H34 V42 H22 Z" };
+  const brow = mood === "bad" ? "<path d='M16 16 L24 20 M40 16 L32 20' stroke='#1C1917' stroke-width='2'/>" : "";
+  return `<svg viewBox="0 0 56 56"><circle cx="28" cy="28" r="24" fill="#FDE68A" stroke="#1C1917" stroke-width="2"/><circle cx="20" cy="24" r="3" fill="#1C1917"/><circle cx="36" cy="24" r="3" fill="#1C1917"/>${brow}<path d="${mouth[mood] || mouth.ok}" fill="none" stroke="#1C1917" stroke-width="3" stroke-linecap="round"/></svg>`;
+}
+function icon(kind) {
+  const pics = {
+    yes: face("ok") + "",
+    no: `<svg viewBox="0 0 56 56"><circle cx="28" cy="28" r="24" fill="#FECACA" stroke="#1C1917" stroke-width="2"/><path d="M18 18 L38 38 M38 18 L18 38" stroke="#BE123C" stroke-width="4" stroke-linecap="round"/></svg>`,
+    ask: face("wow"),
+    maybe: face("flat"),
+    body: `<svg viewBox="0 0 56 56"><circle cx="28" cy="12" r="7" fill="#FDE68A" stroke="#1C1917"/><path d="M28 19 V36 M18 26 H38 M20 50 L28 36 L36 50" fill="none" stroke="#0E6E6B" stroke-width="4" stroke-linecap="round"/></svg>`,
+    clock: `<svg viewBox="0 0 56 56"><circle cx="28" cy="28" r="20" fill="#DBEAFE" stroke="#1C1917" stroke-width="2"/><path d="M28 16 V28 L36 34" fill="none" stroke="#1D4ED8" stroke-width="3" stroke-linecap="round"/></svg>`,
+    pain: face("bad"),
+    pee: `<svg viewBox="0 0 56 56"><path d="M18 14 H38 V30 Q38 44 28 44 Q18 30 18 14 Z" fill="#BFDBFE" stroke="#1C1917" stroke-width="2"/><path d="M24 44 Q28 52 32 44" fill="none" stroke="#1D4ED8" stroke-width="3"/></svg>`,
+    moon: `<svg viewBox="0 0 56 56"><path d="M34 10 A18 18 0 1 0 46 36 A14 14 0 1 1 34 10 Z" fill="#FDE68A" stroke="#1C1917" stroke-width="2"/></svg>`,
+    more: `<svg viewBox="0 0 56 56"><circle cx="16" cy="28" r="4" fill="#0E6E6B"/><circle cx="28" cy="28" r="4" fill="#0E6E6B"/><circle cx="40" cy="28" r="4" fill="#0E6E6B"/></svg>`,
+    back: `<svg viewBox="0 0 56 56"><ellipse cx="20" cy="30" rx="8" ry="14" fill="#FDE68A" stroke="#1C1917"/><ellipse cx="36" cy="30" rx="8" ry="14" fill="#FDE68A" stroke="#1C1917"/></svg>`,
+    belly: `<svg viewBox="0 0 56 56"><ellipse cx="28" cy="30" rx="16" ry="14" fill="#FBCFE8" stroke="#1C1917" stroke-width="2"/><circle cx="28" cy="30" r="4" fill="#BE123C"/></svg>`,
+    drop: `<svg viewBox="0 0 56 56"><path d="M28 8 Q40 28 28 46 Q16 28 28 8 Z" fill="#93C5FD" stroke="#1C1917" stroke-width="2"/></svg>`
+  };
+  return pics[kind] || face("ok");
+}
 const PAT = [
-  ["懂了"],["不懂，請再說"],["是"],["不是"],["不確定"],
-  ["哪裡不舒服", ["左邊腰","右邊腰","下腹","膀胱","會陰","尿道"]],
-  ["多久了", ["今天才開始","昨天","好幾天","好幾個星期","好幾個月","一直都有"]],
-  ["有多痛", ["不痛","有一點痛","很痛","痛到睡不著","0 分","2 分","4 分","6 分","8 分","10 分"]],
-  ["尿尿的狀況", ["尿尿有血","尿尿會痛","很常想尿","很急","尿不出來","尿很細","會漏尿","晚上要起來尿"]],
-  ["夜尿幾次", ["0 次","1 次","2 次","3 次","4 次以上"]],
-  ["其他", ["請慢一點","請寫大一點","我有問題","我想上廁所","請叫家屬","要手語翻譯","我同意","我不同意","先不要決定"]]
+  ["懂了", "yes"],
+  ["不懂，請再說", "ask"],
+  ["是", "yes"],
+  ["不是", "no"],
+  ["不確定", "maybe"],
+  ["哪裡不舒服", "body", ["左邊腰","右邊腰","下腹","膀胱","會陰","尿道"]],
+  ["多久了", "clock", ["今天才開始","昨天","好幾天","好幾個星期","好幾個月","一直都有"]],
+  ["有多痛", "pain", ["不痛","有一點痛","很痛","痛到睡不著"]],
+  ["尿尿的狀況", "pee", ["尿尿有血","尿尿會痛","很常想尿","很急","尿不出來","尿很細","會漏尿","晚上要起來尿"]],
+  ["夜尿幾次", "moon", ["0 次","1 次","2 次","3 次","4 次以上"]],
+  ["其他", "more", ["請慢一點","請寫大一點","我有問題","我想上廁所","請叫家屬","要手語翻譯","我同意","先不要決定"]]
 ];
+const CHOICE_ICON = { "左邊腰":"back","右邊腰":"back","下腹":"belly","膀胱":"belly","會陰":"drop","尿道":"drop","不痛":"yes","有一點痛":"maybe","很痛":"pain","痛到睡不著":"pain" };
 let pending = null;
 const $ = (id) => document.getElementById(id);
-function showPat(text) { $("patNow").textContent = text; }
-function openChoices(title, items, onPick) {
-  pending = onPick;
+function card(text, kind) { return icon(CHOICE_ICON[text] || kind) + `<span>${text}</span>`; }
+$("patMain").innerHTML = PAT.map((item,i) => `<button class="phrase" data-i="${i}">${card(item[0], item[1])}</button>`).join("");
+function openChoices(title, items) {
+  pending = title;
   $("sheetTitle").textContent = title;
-  $("choices").innerHTML = items.map((t,i) => `<button data-i="${i}">${t}</button>`).join("");
+  $("choices").innerHTML = items.map(t => `<button data-choice="${t}">${card(t, "maybe")}</button>`).join("");
   $("sheet").classList.add("show");
 }
-$("patMain").innerHTML = PAT.map((item,i) => `<button class="phrase" data-i="${i}">${item[0]}</button>`).join("");
 $("patMain").onclick = (e) => {
   const b = e.target.closest("[data-i]"); if (!b) return;
   const item = PAT[b.dataset.i];
-  showPat(item[0]);
-  if (item[1]) openChoices(item[0], item[1], (choice) => showPat(item[0] + "：" + choice));
+  $("patNow").textContent = item[0];
+  if (item[2]) openChoices(item[0], item[2]);
 };
 $("choices").onclick = (e) => {
-  const b = e.target.closest("[data-i]"); if (!b || !pending) return;
-  const fn = pending; pending = null; $("sheet").classList.remove("show"); fn(b.textContent);
+  const b = e.target.closest("[data-choice]"); if (!b || !pending) return;
+  $("patNow").textContent = pending + "：" + b.dataset.choice;
+  pending = null; $("sheet").classList.remove("show");
 };
 $("sheetClose").onclick = () => { pending = null; $("sheet").classList.remove("show"); };
 const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
 let rec = null, listenSession = 0, listening = false;
 function stopVoice() {
   listenSession++; listening = false;
-  $("micDoc").classList.remove("on");
-  $("micDoc").textContent = "按住說";
+  $("micDoc").classList.remove("on"); $("micDoc").textContent = "說話轉文字";
   if (!rec) return;
   const old = rec; rec = null;
   old.onresult = old.onerror = old.onend = null;
   try { old.abort(); } catch (e) {}
 }
 function startVoice() {
-  if (!SR) { $("docHint").textContent = "這支手機不能語音，請改用 Safari"; return; }
+  if (!SR) { $("docHint").textContent = "請用 Safari，並允許麥克風"; return; }
   if (listening) { stopVoice(); $("docHint").textContent = "已停止"; return; }
   if (window.speechSynthesis) speechSynthesis.cancel();
   stopVoice();
-  const session = listenSession;
-  const mine = new SR();
+  const session = listenSession, mine = new SR();
   rec = mine; mine.lang = "zh-TW"; mine.interimResults = true; mine.continuous = false;
-  listening = true;
-  $("micDoc").classList.add("on");
-  $("micDoc").textContent = "停止";
-  $("docNow").textContent = "請說話";
-  $("docHint").textContent = "正在聽…";
+  listening = true; $("micDoc").classList.add("on"); $("micDoc").textContent = "停止";
+  $("docNow").textContent = "請說話"; $("docHint").textContent = "正在聽…";
   const timer = setTimeout(() => { if (session === listenSession) stopVoice(); }, 8000);
   mine.onresult = (e) => {
     if (session !== listenSession) return;
     let text = "";
     for (let i = 0; i < e.results.length; i++) text += e.results[i][0].transcript;
-    text = text.trim();
-    if (text) $("docNow").textContent = text;
+    if (text.trim()) $("docNow").textContent = text.trim();
   };
-  mine.onerror = (e) => {
-    if (session !== listenSession) return;
-    clearTimeout(timer); stopVoice();
-    $("docHint").textContent = e.error === "not-allowed" ? "請允許麥克風" : "沒聽清楚，請再按一次";
-  };
-  mine.onend = () => {
-    if (session !== listenSession) return;
-    clearTimeout(timer); listening = false;
-    $("micDoc").classList.remove("on");
-    $("micDoc").textContent = "按住說";
-    rec = null;
-    $("docHint").textContent = "說完了。要改再說一次。";
-  };
+  mine.onerror = (e) => { if (session !== listenSession) return; clearTimeout(timer); stopVoice(); $("docHint").textContent = e.error === "not-allowed" ? "請允許麥克風" : "沒聽清楚，請再按一次"; };
+  mine.onend = () => { if (session !== listenSession) return; clearTimeout(timer); listening = false; $("micDoc").classList.remove("on"); $("micDoc").textContent = "說話轉文字"; rec = null; $("docHint").textContent = "說完了。要改再說一次。"; };
   try { mine.start(); } catch (e) { clearTimeout(timer); stopVoice(); $("docHint").textContent = "麥克風無法啟動，請再按一次"; }
 }
 $("micDoc").onclick = startVoice;
