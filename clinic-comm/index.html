@@ -34,7 +34,8 @@
   .choices { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
   .choices button { display:flex; align-items:center; gap:8px; border:1px solid var(--line); background:#fff; border-radius:14px; padding:10px; font-size:18px; font-weight:800; text-align:left; }
   .choices svg { width:46px; height:46px; flex:0 0 46px; }
-  .ghost { width:100%; margin-top:8px; border:1px solid var(--line); background:#fff; border-radius:14px; padding:12px; font-size:18px; font-weight:800; }
+  .said img { max-width:100%; max-height:120px; background:#fff; border-radius:10px; }
+  .pad { width:100%; height:240px; background:#fff; border:2px solid #1C1917; border-radius:16px; touch-action:none; }
 </style>
 </head>
 <body>
@@ -45,7 +46,7 @@
     <p class="hint" id="docHint">只用語音。說完變成大字，再按一次可停止。</p>
   </section>
   <section class="pat">
-    <div class="said" id="patNow">版本5：第一頁只有一個頻率</div>
+    <div class="said" id="patNow">患者可點選項，或按手寫</div>
     <div class="list" id="freqMain"></div>
     <div class="group">症狀</div>
     <div class="list" id="patMain"></div>
@@ -58,6 +59,17 @@
     <h3 id="sheetTitle">請選細節</h3>
     <div class="choices" id="choices"></div>
     <button class="ghost" id="sheetClose">先不選</button>
+  </div>
+</div>
+<div class="sheet" id="writeSheet">
+  <div class="box">
+    <h3>請用手指寫</h3>
+    <canvas class="pad" id="pad"></canvas>
+    <div class="row" style="display:flex;gap:8px;margin-top:8px">
+      <button class="ghost" id="clearPad">清除</button>
+      <button class="ghost" id="donePad" style="background:#0E6E6B;color:#fff">給醫師看</button>
+    </div>
+    <button class="ghost" id="closePad">關閉</button>
   </div>
 </div>
 <script>
@@ -98,7 +110,7 @@ const PAT = [
   ["漏尿", "drop", ["咳嗽、出力就漏","很急就漏","一直漏","只有幾滴","不會漏"]],
   ["發燒", "pain", ["有發燒","發冷","噁心","沒有發燒"]]
 ];
-const TALK = [["懂了","yes"],["不懂，請再說","ask"],["是","yes"],["不是","no"],["不確定","maybe"],["請慢一點","clock"],["請再說明","ask"],["我有問題","ask"],["請叫家屬","more"],["要手語翻譯","more"],["我想上廁所","pee"],["我同意","yes"],["先不要決定","maybe"]];
+const TALK = [["手寫","more"],["懂了","yes"],["不懂，請再說","ask"],["是","yes"],["不是","no"],["不確定","maybe"],["請慢一點","clock"],["請再說明","ask"],["我有問題","ask"],["請叫家屬","more"],["要手語翻譯","more"],["我想上廁所","pee"],["我同意","yes"],["先不要決定","maybe"]];
 const CHOICE_ICON = { "左邊腰":"left","右邊腰":"right","下腹":"belly","會陰":"perineum","尿道口":"urethra","有一點痛":"maybe","很痛":"pain","痛到睡不著":"pain","不會痛":"yes","不會":"yes","可以尿":"yes","不會漏":"yes","沒有發燒":"yes","現在沒有":"yes","不用起來":"yes" };
 let pending = null;
 const $ = (id) => document.getElementById(id);
@@ -114,6 +126,7 @@ function fill(id, items) {
   $(id).onclick = (e) => {
     const b = e.target.closest("[data-i]"); if (!b) return;
     const item = items[b.dataset.i];
+    if (item[0] === "手寫") { openPad(); return; }
     $("patNow").textContent = item[0];
     if (item[2]) openChoices(item[0], item[2]);
   };
@@ -127,6 +140,35 @@ $("choices").onclick = (e) => {
   pending = null; $("sheet").classList.remove("show");
 };
 $("sheetClose").onclick = () => { pending = null; $("sheet").classList.remove("show"); };
+const pad = $("pad"), ctx = pad.getContext("2d");
+let drawing = false;
+function sizePad() {
+  const r = pad.getBoundingClientRect();
+  pad.width = r.width * 2; pad.height = r.height * 2;
+  ctx.setTransform(2, 0, 0, 2, 0, 0);
+  ctx.lineWidth = 4; ctx.lineCap = "round"; ctx.strokeStyle = "#1C1917";
+  ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, r.width, r.height);
+}
+function pos(e) {
+  const r = pad.getBoundingClientRect();
+  const t = e.touches ? e.touches[0] : e;
+  return { x: t.clientX - r.left, y: t.clientY - r.top };
+}
+function openPad() { $("writeSheet").classList.add("show"); setTimeout(sizePad, 30); }
+function startDraw(e) { drawing = true; const p = pos(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); e.preventDefault(); }
+function moveDraw(e) { if (!drawing) return; const p = pos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); e.preventDefault(); }
+pad.addEventListener("pointerdown", startDraw);
+pad.addEventListener("pointermove", moveDraw);
+pad.addEventListener("pointerup", () => drawing = false);
+pad.addEventListener("touchstart", startDraw, { passive: false });
+pad.addEventListener("touchmove", moveDraw, { passive: false });
+pad.addEventListener("touchend", () => drawing = false);
+$("clearPad").onclick = sizePad;
+$("closePad").onclick = () => $("writeSheet").classList.remove("show");
+$("donePad").onclick = () => {
+  $("patNow").innerHTML = `<img alt="患者手寫" src="${pad.toDataURL()}">`;
+  $("writeSheet").classList.remove("show");
+};
 const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
 let rec = null, listenSession = 0, listening = false;
 function stopVoice() {
