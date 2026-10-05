@@ -8,178 +8,228 @@
 <title>泌尿科門診溝通板</title>
 <style>
   :root {
-    --bg: #F7F4EE; --ink: #1C1917; --muted: #57534E; --line: #E6DFD2;
-    --card: #fff; --teal: #0E6E6B; --green: #047857; --rose: #BE123C;
-    --safe-b: env(safe-area-inset-bottom, 0px); --safe-t: env(safe-area-inset-top, 0px);
+    --bg:#F7F4EE; --ink:#1C1917; --line:#E6DFD2; --teal:#0E6E6B; --green:#047857; --rose:#BE123C;
+    --safe-b:env(safe-area-inset-bottom,0px); --safe-t:env(safe-area-inset-top,0px);
   }
-  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-  body { margin: 0; background: var(--bg); color: var(--ink); font-family: "PingFang TC", "Noto Sans TC", sans-serif; }
-  button, input { font-family: inherit; font-size: 20px; }
-  button { cursor: pointer; }
-  .app { max-width: 560px; margin: 0 auto; padding-bottom: calc(292px + var(--safe-b)); }
-  header { display: flex; justify-content: space-between; align-items: center; padding: calc(10px + var(--safe-t)) 16px 6px; }
-  h1 { font-size: 22px; margin: 0; }
-  .icon { width: 48px; height: 48px; border: 1px solid var(--line); background: white; border-radius: 14px; font-weight: 800; }
-  .hero { margin: 8px 14px; background: #123E3C; color: white; border-radius: 24px; min-height: 210px; padding: 22px 18px; display: flex; flex-direction: column; justify-content: center; }
-  .hero.pat { background: #7F1D1D; }
-  .who { font-size: 18px; opacity: .85; font-weight: 700; }
-  .hero h2 { font-size: 40px; line-height: 1.25; margin: 10px 0 0; }
-  .tools { display: flex; gap: 8px; margin: 10px 14px 0; }
-  .tools button, .solid, .ghost { border-radius: 14px; padding: 12px; font-weight: 800; }
-  .tools button { flex: 1; border: 1px solid var(--line); background: white; }
-  .chips { display: flex; gap: 8px; overflow-x: auto; padding: 12px 14px 8px; scrollbar-width: none; }
-  .chips::-webkit-scrollbar { display: none; }
-  .chip { flex: 0 0 auto; border: 1px solid var(--line); background: white; border-radius: 999px; padding: 10px 16px; font-weight: 800; }
-  .chip.on { background: var(--teal); color: white; border-color: var(--teal); }
-  .list { display: flex; flex-direction: column; gap: 8px; padding: 0 14px; }
-  .phrase { text-align: left; border: 1px solid var(--line); background: white; border-radius: 16px; padding: 16px; font-size: 22px; font-weight: 800; line-height: 1.3; }
-  .composer { display: flex; gap: 8px; padding: 12px 14px 0; }
-  .composer input { flex: 1; border: 1px solid var(--line); border-radius: 14px; padding: 14px; font-size: 20px; }
-  .solid { border: 0; background: var(--teal); color: white; }
-  .ghost { border: 1px solid var(--line); background: white; }
-  details { margin: 12px 14px; font-size: 18px; }
-  .note { color: var(--muted); font-size: 15px; padding: 0 16px; }
-  .dock { position: fixed; left: 0; right: 0; bottom: 0; background: #fff; border-top: 1px solid var(--line); padding: 10px 10px calc(10px + var(--safe-b)); }
-  .dock-in { max-width: 560px; margin: 0 auto; }
-  .ans { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-  .ans button { border: 0; border-radius: 16px; min-height: 64px; color: white; font-size: 24px; font-weight: 800; }
-  .yes { background: var(--green); } .no { background: var(--rose); }
-  .more { display: flex; gap: 8px; overflow-x: auto; margin-top: 8px; scrollbar-width: none; }
-  .more button { flex: 0 0 auto; border: 1px solid var(--line); background: #fff; border-radius: 14px; padding: 12px 14px; font-weight: 800; }
-  .mic-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px; }
-  .mic { border: 0; border-radius: 14px; min-height: 52px; color: white; background: #6D28D9; font-weight: 800; }
-  .mic.on { background: var(--rose); }
-  .sheet { position: fixed; inset: 0; background: rgba(0,0,0,.35); display: none; align-items: flex-end; z-index: 20; }
-  .sheet.show { display: flex; }
-  .box { width: min(560px, 100%); background: var(--bg); border-radius: 18px 18px 0 0; padding: 16px 16px calc(16px + var(--safe-b)); }
-  .pain { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; margin-top: 8px; }
-  .pain button { border: 0; color: white; border-radius: 10px; height: 44px; font-weight: 800; }
+  * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  body { margin:0; background:var(--bg); color:var(--ink); font-family:"PingFang TC","Noto Sans TC",sans-serif; }
+  button, input { font-family:inherit; }
+  button { cursor:pointer; }
+  .app { max-width:560px; margin:0 auto; padding-bottom:calc(24px + var(--safe-b)); }
+  header { display:flex; justify-content:space-between; align-items:center; padding:calc(10px + var(--safe-t)) 16px 4px; }
+  h1 { font-size:22px; margin:0; }
+  .icon { width:48px; height:48px; border:1px solid var(--line); background:#fff; border-radius:14px; font-size:18px; font-weight:800; }
+  .hero { margin:8px 14px; background:#123E3C; color:#fff; border-radius:24px; min-height:180px; padding:22px 18px; display:flex; flex-direction:column; justify-content:center; }
+  .hero.pat { background:#7F1D1D; }
+  .who { font-size:18px; opacity:.85; font-weight:700; }
+  .hero h2 { font-size:40px; line-height:1.25; margin:10px 0 0; }
+  .roles { display:grid; grid-template-columns:1fr 1fr; gap:8px; padding:12px 14px 4px; }
+  .roles button { border:1px solid var(--line); background:#fff; border-radius:16px; min-height:58px; font-size:22px; font-weight:800; }
+  .roles button.on { background:var(--teal); color:#fff; border-color:var(--teal); }
+  .roles button.on.pat { background:var(--rose); border-color:var(--rose); }
+  .chips { display:flex; gap:8px; overflow-x:auto; padding:10px 14px; scrollbar-width:none; }
+  .chips::-webkit-scrollbar { display:none; }
+  .chip { flex:0 0 auto; border:1px solid var(--line); background:#fff; border-radius:999px; padding:10px 16px; font-size:18px; font-weight:800; }
+  .chip.on { background:var(--teal); color:#fff; border-color:var(--teal); }
+  .list { display:flex; flex-direction:column; gap:8px; padding:0 14px 12px; }
+  .phrase { text-align:left; border:1px solid var(--line); background:#fff; border-radius:16px; padding:16px; font-size:22px; font-weight:800; line-height:1.3; }
+  .composer { display:flex; gap:8px; padding:0 14px 12px; }
+  .composer input { flex:1; border:1px solid var(--line); border-radius:14px; padding:14px; font-size:20px; }
+  .solid { border:0; background:var(--teal); color:#fff; border-radius:14px; padding:12px 16px; font-size:20px; font-weight:800; }
+  .mic { width:100%; margin:0 14px 12px; width:calc(100% - 28px); border:0; border-radius:16px; min-height:56px; background:#6D28D9; color:#fff; font-size:20px; font-weight:800; }
+  .mic.on { background:var(--rose); }
+  .note { color:#57534E; font-size:15px; padding:0 16px 12px; }
+  .sheet { position:fixed; inset:0; background:rgba(28,25,23,.4); display:none; align-items:flex-end; z-index:30; }
+  .sheet.show { display:flex; }
+  .box { width:min(560px,100%); background:var(--bg); border-radius:20px 20px 0 0; padding:16px 14px calc(16px + var(--safe-b)); max-height:78vh; overflow:auto; }
+  .box h3 { margin:0 0 10px; font-size:22px; }
+  .choices { display:flex; flex-direction:column; gap:8px; }
+  .choices button { text-align:left; border:1px solid var(--line); background:#fff; border-radius:16px; padding:16px; font-size:22px; font-weight:800; }
+  .row { display:flex; gap:8px; margin-top:10px; }
+  .row button { flex:1; }
+  .ghost { border:1px solid var(--line); background:#fff; border-radius:14px; padding:12px; font-size:18px; font-weight:800; }
 </style>
 </head>
 <body>
 <div class="app">
   <header>
     <h1>看診溝通</h1>
-    <button class="icon" id="setBtn">Aa</button>
+    <button class="icon" id="copy">複製</button>
   </header>
   <section class="hero doc" id="hero">
-    <div class="who" id="who">請點一句</div>
+    <div class="who" id="who">請先選醫師或患者</div>
     <h2 id="now">請看這裡</h2>
   </section>
-  <div class="tools">
-    <button id="speak">念出來</button>
-    <button id="copy">複製紀錄</button>
+  <div class="roles">
+    <button id="roleDoc" class="on">醫師要說</button>
+    <button id="rolePat" class="pat">患者要答</button>
   </div>
-  <div class="chips" id="cats"></div>
-  <div class="list" id="phrases"></div>
-  <div class="composer">
-    <input id="custom" placeholder="自己打一句">
-    <button class="solid" id="send">送出</button>
-  </div>
-  <details>
-    <summary>疼痛與位置</summary>
-    <div class="pain" id="pain"></div>
-    <div class="more" id="parts"></div>
-  </details>
-  <details>
-    <summary>剛才說過的話</summary>
-    <div id="thread"></div>
-  </details>
-  <p class="note">手術與同意書仍建議手語翻譯。語音請用 Safari。</p>
-</div>
-<div class="dock">
-  <div class="dock-in">
-    <div class="ans">
-      <button class="yes" data-say="懂了">懂了</button>
-      <button class="no" data-say="不懂">不懂</button>
-      <button class="yes" data-say="是">是</button>
-      <button class="no" data-say="不是">不是</button>
+  <section id="docPane">
+    <div class="chips" id="cats"></div>
+    <div class="list" id="phrases"></div>
+    <div class="composer">
+      <input id="custom" placeholder="自己打一句">
+      <button class="solid" id="send">送出</button>
     </div>
-    <div class="chips" id="patCats" style="padding:8px 0 0"></div>
-    <div class="more" id="patMore"></div>
-    <div class="mic-row">
-      <button class="mic" id="micDoc">醫師說</button>
-      <button class="mic" id="micPat">患者說</button>
-    </div>
-  </div>
+    <button class="mic" id="micDoc">醫師說</button>
+  </section>
+  <section id="patPane" hidden>
+    <div class="list" id="patMain"></div>
+    <button class="mic" id="micPat">患者說</button>
+  </section>
+  <p class="note">有需要再選的內容，點了才會跳出。手術同意仍建議手語翻譯。</p>
 </div>
 <div class="sheet" id="sheet">
   <div class="box">
-    <button class="ghost" id="clear" style="width:100%">清除紀錄</button>
-    <button class="solid" id="closeSet" style="width:100%;margin-top:8px">完成</button>
+    <h3 id="sheetTitle">請選擇</h3>
+    <div class="choices" id="choices"></div>
+    <div class="row"><button class="ghost" id="sheetClose">先不選</button></div>
   </div>
 </div>
 <script>
 const CATS = [["hi","招呼"],["ask","問診"],["exam","檢查"],["dx","說明"],["tx","用藥"],["warn","注意"]];
-const PHRASES = {
-  hi: ["您好，我是泌尿科醫師","請看螢幕","看懂請點懂了","請家屬一起看","需要手語翻譯嗎？","請坐，慢慢說"],
-  ask: ["今天哪裡不舒服？","尿尿有問題嗎？","這個問題多久了？","尿尿有血嗎？","尿尿時會痛嗎？","很常想尿嗎？","晚上要起來尿尿嗎？","尿不出來嗎？","會漏尿嗎？","有發燒嗎？","有噁心嘔吐嗎？","對什麼藥過敏嗎？"],
-  exam: ["請躺到檢查床","請把褲子退到這裡","我要摸肚子，請放鬆","請側躺","我要做肛門指診","請先去解尿，留中段尿","請去抽血","請去做超音波","請去照X光或電腦斷層","可能需要膀胱鏡","檢查結束，可以穿上"],
-  dx: ["可能是泌尿道感染","可能是結石","可能是攝護腺肥大","可能是膀胱的問題","還要檢查才能確定","目前看起來不嚴重","建議住院","以後可能需要手術"],
-  tx: ["我開藥給您","請多喝水","不要憋尿","這個藥可能讓尿變色","請依預約回診","請簽名","有問題可回門診或急診"],
-  warn: ["發燒、劇痛、尿不出來，請急診","大量血尿，請急診","頭暈冒冷汗，請告訴我們","藥吃了不舒服就停，並回診"]
+const DOC = {
+  hi: [
+    ["您好，我是泌尿科醫師"],
+    ["請看螢幕"],
+    ["看懂請點懂了"],
+    ["請家屬一起看"],
+    ["需要手語翻譯嗎？", ["需要","現在不用","請家屬翻譯"]]
+  ],
+  ask: [
+    ["今天哪裡不舒服？", ["左邊腰","右邊腰","下腹","會陰","說不上來"]],
+    ["尿尿有問題嗎？", ["有","沒有","不確定"]],
+    ["這個問題多久了？", ["今天","昨天","好幾天","好幾個星期","好幾個月","一直都有"]],
+    ["尿尿有血嗎？", ["有","沒有","以前有"]],
+    ["尿尿時會痛嗎？", ["不痛","有一點痛","很痛"]],
+    ["很常想尿嗎？", ["會","不會","有時會"]],
+    ["晚上要起來尿尿嗎？", ["不用","1 次","2 次","3 次","4 次以上"]],
+    ["尿不出來嗎？", ["尿不出來","尿很細","尿完還想尿","不會"]],
+    ["會漏尿嗎？", ["不會","咳嗽就漏","很急就漏","一直漏"]],
+    ["有發燒嗎？", ["有","沒有","不知道"]],
+    ["對什麼藥過敏嗎？", ["沒有","有，但不知道藥名","有，等一下寫","不確定"]]
+  ],
+  exam: [
+    ["請躺到檢查床"],
+    ["請把褲子退到這裡"],
+    ["我要摸肚子，請放鬆"],
+    ["請側躺"],
+    ["我要做肛門指診，看攝護腺"],
+    ["請先去解尿，留中段尿"],
+    ["請去做檢查", ["抽血","超音波","X光","電腦斷層","膀胱鏡"]]
+  ],
+  dx: [
+    ["可能是泌尿道感染"],
+    ["可能是結石"],
+    ["可能是攝護腺肥大"],
+    ["可能是膀胱的問題"],
+    ["還要檢查才能確定"],
+    ["目前看起來不嚴重"],
+    ["建議住院"],
+    ["以後可能需要手術", ["今天先說明","我想再問","先不要決定"]]
+  ],
+  tx: [
+    ["我開藥給您"],
+    ["請多喝水"],
+    ["不要憋尿"],
+    ["這個藥可能讓尿變色"],
+    ["請依預約回診"],
+    ["請簽名，表示了解", ["我同意","我不同意","先不要決定","請再說明"]],
+    ["有問題可回門診或急診"]
+  ],
+  warn: [
+    ["發燒、劇痛、尿不出來，請急診"],
+    ["大量血尿，請急診"],
+    ["頭暈冒冷汗，請告訴我們"],
+    ["藥吃了不舒服就停，並回診"]
+  ]
 };
-const PAT_GROUPS = {
-  症狀: ["尿尿有血","尿尿會痛","很常想尿","很急","尿不出來","尿很細","會漏尿","晚上要起來尿","有發燒","左邊腰很痛","右邊腰很痛","下腹脹痛","有結石過"],
-  時間: ["今天才開始","昨天開始","好幾天了","好幾個星期","好幾個月","一直都有","時好時壞","越來越嚴重"],
-  次數: ["夜尿 0 次","夜尿 1 次","夜尿 2 次","夜尿 3 次","夜尿 4 次以上","有一點痛","很痛"],
-  需求: ["請慢一點","請寫大一點","我有問題","我想上廁所","請叫家屬","要手語翻譯","我同意","我不同意","先不要決定","請再說明"]
-};
-const PARTS = ["左邊腰","右邊腰","下腹","膀胱","會陰"];
-let cat = "hi", patCat = "症狀", log = [];
+const PAT = [
+  ["懂了"],
+  ["不懂，請再說"],
+  ["是"],
+  ["不是"],
+  ["不確定"],
+  ["哪裡不舒服", ["左邊腰","右邊腰","下腹","膀胱","會陰","尿道"]],
+  ["多久了", ["今天才開始","昨天","好幾天","好幾個星期","好幾個月","一直都有","時好時壞"]],
+  ["有多痛", ["不痛","有一點痛","很痛","痛到睡不著","0 分","1 分","2 分","3 分","4 分","5 分","6 分","7 分","8 分","9 分","10 分"]],
+  ["尿尿的狀況", ["尿尿有血","尿尿會痛","很常想尿","很急","尿不出來","尿很細","會漏尿","晚上要起來尿"]],
+  ["夜尿幾次", ["0 次","1 次","2 次","3 次","4 次以上"]],
+  ["其他需求", ["請慢一點","請寫大一點","我有問題","我想上廁所","請叫家屬","要手語翻譯","我同意","我不同意","先不要決定","請再說明","沒有藥物過敏","我有藥物過敏"]]
+];
+let cat = "hi", role = "doc", log = [], pending = null;
 const $ = (id) => document.getElementById(id);
-function time() { return new Date().toLocaleTimeString("zh-TW", { hour: "2-digit", minute: "2-digit" }); }
-function say(role, text) {
-  $("who").textContent = (role === "doc" ? "醫師" : "患者") + " · " + time();
+function time() { return new Date().toLocaleTimeString("zh-TW", {hour:"2-digit", minute:"2-digit"}); }
+function showNow(who, text) {
+  $("who").textContent = who + " · " + time();
   $("now").textContent = text;
-  $("hero").className = "hero " + role;
-  const b = document.createElement("div");
-  b.style.cssText = "font-size:18px;padding:8px 0;border-bottom:1px solid #eee";
-  b.textContent = (role === "doc" ? "醫師：" : "患者：") + text;
-  $("thread").prepend(b);
-  log.push(`${time()} ${role === "doc" ? "醫師" : "患者"}：${text}`);
+  $("hero").className = "hero " + (who === "患者" ? "pat" : "doc");
+  log.push(time() + " " + who + "：" + text);
 }
-function renderCats() { $("cats").innerHTML = CATS.map(([id, name]) => `<button class="chip ${id===cat?"on":""}" data-cat="${id}">${name}</button>`).join(""); }
-function renderPhrases() { $("phrases").innerHTML = PHRASES[cat].map((t, i) => `<button class="phrase" data-i="${i}">${t}</button>`).join(""); }
+function openChoices(title, items, onPick) {
+  pending = onPick;
+  $("sheetTitle").textContent = title;
+  $("choices").innerHTML = items.map((t,i) => `<button data-i="${i}">${t}</button>`).join("");
+  $("sheet").classList.add("show");
+}
+function setRole(next) {
+  role = next;
+  $("roleDoc").classList.toggle("on", next === "doc");
+  $("rolePat").classList.toggle("on", next === "pat");
+  $("docPane").hidden = next !== "doc";
+  $("patPane").hidden = next !== "pat";
+}
+function renderCats() {
+  $("cats").innerHTML = CATS.map(([id,name]) => `<button class="chip ${id===cat?"on":""}" data-cat="${id}">${name}</button>`).join("");
+}
+function renderDoc() {
+  $("phrases").innerHTML = DOC[cat].map((item,i) => `<button class="phrase" data-i="${i}">${item[0]}</button>`).join("");
+}
 function renderPat() {
-  $("patCats").innerHTML = Object.keys(PAT_GROUPS).map(name => `<button class="chip ${name===patCat?"on":""}" data-pcat="${name}">${name}</button>`).join("");
-  $("patMore").innerHTML = PAT_GROUPS[patCat].map(t => `<button data-say="${t}">${t}</button>`).join("");
+  $("patMain").innerHTML = PAT.map((item,i) => `<button class="phrase" data-i="${i}">${item[0]}</button>`).join("");
 }
-$("cats").onclick = (e) => { const b = e.target.closest("[data-cat]"); if (!b) return; cat = b.dataset.cat; renderCats(); renderPhrases(); };
-$("phrases").onclick = (e) => { const b = e.target.closest("[data-i]"); if (b) say("doc", PHRASES[cat][b.dataset.i]); };
-$("send").onclick = () => { const t = $("custom").value.trim(); if (!t) return; say("doc", t); $("custom").value = ""; };
+$("roleDoc").onclick = () => setRole("doc");
+$("rolePat").onclick = () => setRole("pat");
+$("cats").onclick = (e) => { const b = e.target.closest("[data-cat]"); if (!b) return; cat = b.dataset.cat; renderCats(); renderDoc(); };
+$("phrases").onclick = (e) => {
+  const b = e.target.closest("[data-i]"); if (!b) return;
+  const item = DOC[cat][b.dataset.i];
+  showNow("醫師", item[0]);
+  if (item[1]) openChoices(item[0], item[1], (choice) => showNow(item[2] === "doc" ? "醫師" : "患者", item[2] === "doc" ? item[0] + "：" + choice : choice));
+};
+$("patMain").onclick = (e) => {
+  const b = e.target.closest("[data-i]"); if (!b) return;
+  const item = PAT[b.dataset.i];
+  showNow("患者", item[0]);
+  if (item[1]) openChoices(item[0], item[1], (choice) => showNow("患者", item[0] + "：" + choice));
+};
+$("choices").onclick = (e) => {
+  const b = e.target.closest("[data-i]"); if (!b || !pending) return;
+  const title = $("sheetTitle").textContent;
+  const choice = [...$("choices").children][b.dataset.i].textContent;
+  const fn = pending; pending = null; $("sheet").classList.remove("show"); fn(choice, title);
+};
+$("sheetClose").onclick = () => { pending = null; $("sheet").classList.remove("show"); };
+$("send").onclick = () => { const t = $("custom").value.trim(); if (!t) return; showNow("醫師", t); $("custom").value = ""; };
 $("custom").addEventListener("keydown", (e) => { if (e.key === "Enter") $("send").click(); });
-document.querySelector(".ans").onclick = (e) => { const b = e.target.closest("[data-say]"); if (b) say("pat", b.dataset.say); };
-$("patCats").onclick = (e) => { const b = e.target.closest("[data-pcat]"); if (!b) return; patCat = b.dataset.pcat; renderPat(); };
-$("patMore").onclick = (e) => { const b = e.target.closest("[data-say]"); if (b) say("pat", b.dataset.say); };
-$("parts").innerHTML = PARTS.map(t => `<button data-part="${t}">${t}</button>`).join("");
-$("parts").onclick = (e) => { const b = e.target.closest("[data-part]"); if (b) say("pat", "不舒服在" + b.dataset.part); };
-const colors = ["#059669","#10B981","#65A30D","#CA8A04","#D97706","#EA580C","#DC2626","#BE123C","#9F1239","#881337","#7F1D1D"];
-$("pain").innerHTML = colors.map((c, n) => `<button data-pain="${n}" style="background:${c}">${n}</button>`).join("");
-$("pain").onclick = (e) => { const b = e.target.closest("[data-pain]"); if (b) say("pat", "疼痛 " + b.dataset.pain + " 分"); };
 const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
 let rec = null;
-function startVoice(role, btn) {
+function startVoice(who, btn) {
   if (!SR) { $("who").textContent = "請用 Safari，並允許麥克風"; return; }
   if (rec) { try { rec.stop(); } catch (e) {} }
-  document.querySelectorAll(".mic").forEach(el => el.classList.remove("on"));
   btn.classList.add("on");
   rec = new SR(); rec.lang = "zh-TW"; rec.interimResults = true;
   $("who").textContent = "正在聽…"; $("now").textContent = "請說話";
   let finalText = "";
   rec.onresult = (e) => { let text = ""; for (const r of e.results) text += r[0].transcript; $("now").textContent = text; if (e.results[e.results.length-1].isFinal) finalText = text.trim(); };
   rec.onerror = () => { $("who").textContent = "沒聽清楚"; btn.classList.remove("on"); };
-  rec.onend = () => { btn.classList.remove("on"); if (finalText) say(role, finalText); };
+  rec.onend = () => { btn.classList.remove("on"); if (finalText) showNow(who, finalText); };
   rec.start();
 }
-$("micDoc").onclick = () => startVoice("doc", $("micDoc"));
-$("micPat").onclick = () => startVoice("pat", $("micPat"));
-$("speak").onclick = () => { if (!speechSynthesis) return; speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance($("now").textContent); u.lang = "zh-TW"; u.rate = .85; speechSynthesis.speak(u); };
-$("copy").onclick = async () => { try { await navigator.clipboard.writeText(log.join("\n") || "無紀錄"); } catch (e) {} };
-$("setBtn").onclick = () => $("sheet").classList.add("show");
-$("closeSet").onclick = () => $("sheet").classList.remove("show");
-$("clear").onclick = () => { log.length = 0; $("thread").innerHTML = ""; $("now").textContent = "紀錄已清除"; };
-renderCats(); renderPhrases(); renderPat();
+$("micDoc").onclick = () => startVoice("醫師", $("micDoc"));
+$("micPat").onclick = () => startVoice("患者", $("micPat"));
+$("copy").onclick = async () => { try { await navigator.clipboard.writeText(log.join("\n") || "無紀錄"); $("who").textContent = "已複製"; } catch (e) {} };
+renderCats(); renderDoc(); renderPat();
 </script>
 </body>
 </html>
